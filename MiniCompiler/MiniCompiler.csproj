@@ -58,7 +58,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>"$(ProjectDir)Gppg.exe" /gplex /verbose /out:"$(ProjectDir)Parser.cs" "$(ProjectDir)kompilator.y"
-"$(ProjectDir)Gplex.exe" /verbose /out:"$(ProjectDir)Scanner.cs" "$(ProjectDir)kompilator.lex"</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>

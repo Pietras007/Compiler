@@ -4,11 +4,11 @@
 
 // GPPG version 1.5.2
 // Machine:  DESKTOP-F60JC3Q
-// DateTime: 6/21/2020 10:32:19 PM
+// DateTime: 6/21/2020 10:49:36 PM
 // UserName: User
-// Input file <kompilator.y - 6/21/2020 10:28:40 PM>
+// Input file <kompilator.y - 6/21/2020 10:49:27 PM>
 
-// options: lines
+// options: lines gplex
 
 using System;
 using System.Collections.Generic;
@@ -35,6 +35,25 @@ public string  val;
 public char    type;
 }
 #line default
+// Abstract base class for GPLEX scanners
+[GeneratedCodeAttribute( "Gardens Point Parser Generator", "1.5.2")]
+public abstract class ScanBase : AbstractScanner<ValueType,LexLocation> {
+  private LexLocation __yylloc = new LexLocation();
+  public override LexLocation yylloc { get { return __yylloc; } set { __yylloc = value; } }
+  protected virtual bool yywrap() { return true; }
+}
+
+// Utility class for encapsulating token information
+[GeneratedCodeAttribute( "Gardens Point Parser Generator", "1.5.2")]
+public class ScanObj {
+  public int token;
+  public ValueType yylval;
+  public LexLocation yylloc;
+  public ScanObj( int t, ValueType val, LexLocation loc ) {
+    this.token = t; this.yylval = val; this.yylloc = loc;
+  }
+}
+
 [GeneratedCodeAttribute( "Gardens Point Parser Generator", "1.5.2")]
 public class Parser: ShiftReduceParser<ValueType, LexLocation>
 {
@@ -242,7 +261,11 @@ public class Parser: ShiftReduceParser<ValueType, LexLocation>
         return CharToString((char)terminal);
   }
 
-#line 109 "kompilator.y"
- #line default
+#line 111 "kompilator.y"
+
+int lineno=1;
+
+public Parser(Scanner scanner) : base(scanner) { }
+#line default
 }
 }

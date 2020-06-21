@@ -53,5 +53,3 @@ Comment			"//".*
 {Identificator}	{ yylval.val=yytext; return (int)Tokens.Identificator; }
 {String}		{ yylval.val=yytext; return (int)Tokens.String; }
 {Comment}		{ }
-
-

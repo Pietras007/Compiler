@@ -1,0 +1,89 @@
+
+// ==========================================================================
+//  GPPG error listing for yacc source file <Parser.cs - 6/21/2020 10:43:47 PM>
+// ==========================================================================
+//  Version:  1.5.2
+//  Machine:  DESKTOP-F60JC3Q
+//  DateTime: 6/21/2020 10:44:34 PM
+//  UserName: User
+// ==========================================================================
+
+
+Usage gppg [options] filename
+//^^^
+// Error: Syntax error, unexpected ident
+// -------------------------------------
+
+/babel          Generate class compatible with Managed Babel
+// Error: This character is invalid in this context
+// ------------------------------------------------
+/conflicts      Emit "conflicts" file with full conflict details
+// Error: This character is invalid in this context
+// ------------------------------------------------
+/csTokenFile    Emit tokens to separate C# file {basename}Tokens.cs
+//--------------------------------------^^
+// Error: This character is invalid in this context
+// Error: This character is invalid in this context
+// ------------------------------------------------
+/defines        Emit "tokens" file with token name list
+// Error: This character is invalid in this context
+// ------------------------------------------------
+/errorsToConsole  Produce legacy console messages (not MSBUILD friendly)
+//-----------------------------------------------^^-------------------^^
+// Error: This character is invalid in this context
+// Error: This character is invalid in this context
+// Error: This character is invalid in this context
+// ------------------------------------------------
+/gplex          Generate scanner base class for GPLEX
+// Error: This character is invalid in this context
+// ------------------------------------------------
+/help           Display this help message
+// Error: This character is invalid in this context
+// ------------------------------------------------
+/line-filename:name Point #line markers at file "name"
+//--^^-------------------^^
+// Error: This character is invalid in this context
+// Error: This character is invalid in this context
+// Error: This character is invalid in this context
+// ------------------------------------------------
+/listing        Emit listing file, even if no errors
+// Error: This character is invalid in this context
+// ------------------------------------------------
+/no-info        Do not write extra information to parser header comment
+//^^
+// Error: This character is invalid in this context
+// Error: This character is invalid in this context
+// ------------------------------------------------
+/no-filename    Do not write the filename in the parser output file
+//^^
+// Error: This character is invalid in this context
+// Error: This character is invalid in this context
+// ------------------------------------------------
+/no-lines       Suppress the generation of #line directives
+//^^--------------------------------------^^
+// Error: This character is invalid in this context
+// Error: This character is invalid in this context
+// Error: This character is invalid in this context
+// ------------------------------------------------
+/noThrowOnError Do not exit without an error message
+// Error: This character is invalid in this context
+// ------------------------------------------------
+/out:name       Name the parser output "name"
+// Error: This character is invalid in this context
+// ------------------------------------------------
+/report         Write *.report.html file with LALR(1) parsing states
+//-------------------^^--------------------------^^^^
+// Error: This character is invalid in this context
+// Error: This character is invalid in this context
+// Error: This character is invalid in this context
+// Error: This character is invalid in this context
+// ------------------------------------------------
+/verbose        Display extra information to console and in reports
+// Error: This character is invalid in this context
+// ------------------------------------------------
+/version        Display version information
+// Error: This character is invalid in this context
+// ------------------------------------------------
+
+// ==========================================================================
+

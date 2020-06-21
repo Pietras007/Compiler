@@ -6,9 +6,9 @@
 //
 //  GPLEX Version:  1.2.2
 //  Machine:  DESKTOP-F60JC3Q
-//  DateTime: 6/21/2020 10:32:20 PM
+//  DateTime: 6/21/2020 10:49:35 PM
 //  UserName: User
-//  GPLEX input file <kompilator.lex - 6/21/2020 8:48:49 PM>
+//  GPLEX input file <kompilator.lex - 6/21/2020 10:49:31 PM>
 //  GPLEX frame file <embedded resource>
 //
 //  Option settings: verbose, parser, minimize

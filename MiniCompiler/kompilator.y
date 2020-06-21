@@ -106,4 +106,9 @@ unar      : Minus
 		  |	IntConversion
 		  |	DoubleConversion
           ;
+
 %%
+
+int lineno=1;
+
+public Parser(Scanner scanner) : base(scanner) { }
