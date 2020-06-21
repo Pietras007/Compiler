@@ -10,6 +10,7 @@ namespace MiniCompiler
     {
         static void Main(string[] args)
         {
+
         }
     }
 }
