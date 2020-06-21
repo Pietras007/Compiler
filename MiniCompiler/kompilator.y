@@ -8,7 +8,7 @@ public string  val;
 public char    type;
 }
 
-%token Program If Else While Read Write Return Int Double Bool True False Assign ConditionalOr ConditionalAnd BooleanLogicalOr BooleanLogicalAnd Equal Inequal GreaterThan GreaterOrEqual LessThan LessOrEqual Plus Minus Multiplication Divide LogicalNegation BitwiseComplement ParenthesisLeft ParenthesisRight CurlyBracketLeft CurlyBracketRight Semicolon Eof
+%token Program If Else While Read Write Return Int Double Bool True False Assign ConditionalOr ConditionalAnd BooleanLogicalOr BooleanLogicalAnd Equal Inequal GreaterThan GreaterOrEqual LessThan LessOrEqual Plus Minus Multiplication Divide LogicalNegation BitwiseComplement ParenthesisLeft ParenthesisRight CurlyBracketLeft CurlyBracketRight Semicolon Eof IntConversion DoubleConversion
 %token <val> IntNumber DoubleNumber Identificator Comment String
 %type <type> statement expression A B C D E F logical relation oppadd oppmul binary unar
 
@@ -22,15 +22,23 @@ statement : CurlyBracketLeft statement CurlyBracketRight
           | If ParenthesisLeft expression ParenthesisRight statement
 		  |	While ParenthesisLeft expression ParenthesisRight statement
 		  |	Return Semicolon
+		  |	Return Semicolon statement
 		  |	expression Semicolon
+		  |	expression Semicolon statement
 		  | Semicolon
+		  | Semicolon statement
 		  | Bool Identificator Semicolon
+		  | Bool Identificator Semicolon statement
 		  | Int Identificator Semicolon
+		  | Int Identificator Semicolon statement
 		  | Double Identificator Semicolon
+		  | Double Identificator Semicolon statement
 		  | Write expression Semicolon
+		  | Write expression Semicolon statement
 		  | Write String Semicolon
+		  | Write String Semicolon statement
 		  | Read Identificator Semicolon
-		  | statement statement
+		  | Read Identificator Semicolon statement
           ;
 
 expression : Identificator Assign A
@@ -57,11 +65,11 @@ relation  : Equal
 		  | LessOrEqual
           ;
 		  
-C		  : C opadd D
+C		  : C oppadd D
           | D
           ;
 		  
-opadd     : Plus
+oppadd    : Plus
           | Minus
           ;
 		  
