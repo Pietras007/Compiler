@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MiniCompiler
 {
-    class Program
+    class Main
     {
         static void Main(string[] args)
         {
