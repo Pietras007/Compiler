@@ -51,8 +51,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="gen_predef.lex" />
-    <None Include="gen_predef.y" />
+    <None Include="kompilator.lex" />
+    <None Include="kompilator.y" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>"$(ProjectDir)Gppg.exe" /gplex /verbose /out:"$(ProjectDir)Parser.cs" "$(ProjectDir)kompilator.y"
+"$(ProjectDir)Gplex.exe" /verbose /out:"$(ProjectDir)Scanner.cs" "$(ProjectDir)kompilator.lex"</PreBuildEvent>
+  </PropertyGroup>
 </Project>
