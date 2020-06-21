@@ -39,6 +39,7 @@ statement : CurlyBracketLeft statement CurlyBracketRight
 		  | Write String Semicolon statement
 		  | Read Identificator Semicolon
 		  | Read Identificator Semicolon statement
+		  | CurlyBracketLeft CurlyBracketRight
           ;
 
 expression : Identificator Assign A
