@@ -6,9 +6,9 @@
 //
 //  GPLEX Version:  1.2.2
 //  Machine:  DESKTOP-F60JC3Q
-//  DateTime: 6/21/2020 8:34:34 PM
+//  DateTime: 6/21/2020 10:32:20 PM
 //  UserName: User
-//  GPLEX input file <C:\Users\User\source\repos\Compiler\MiniCompiler\kompilator.lex - 6/21/2020 8:25:29 PM>
+//  GPLEX input file <kompilator.lex - 6/21/2020 8:48:49 PM>
 //  GPLEX frame file <embedded resource>
 //
 //  Option settings: verbose, parser, minimize
@@ -171,7 +171,7 @@ namespace MiniCompiler
 /* NxS[   2] */ // Shortest string "!"
       new Table(61, 1, -1, new sbyte[] {82}),
 /* NxS[   3] */ // Shortest string "&"
-      new Table(38, 1, -1, new sbyte[] {81}),
+      new Table(38, 1, -1, new sbyte[] {80}),
 /* NxS[   4] */ // Shortest string "("
       new Table(100, 6, -1, new sbyte[] {86, -1, -1, -1, -1, 87}),
 /* NxS[   5] */ new Table(0, 0, -1, null), // Shortest string ")"
@@ -569,21 +569,26 @@ namespace MiniCompiler
           76, 76, 76, 76}),
 /* NxS[  77] */ // Shortest string "//"
       new Table(10, 1, 77, new sbyte[] {-1}),
-/* NxS[  78] */ new Table(0, 0, -1, null), // Shortest string ".*"
-/* NxS[  79] */ new Table(0, 0, -1, null), // Shortest string "(int)"
-/* NxS[  80] */ new Table(0, 0, -1, null), // Shortest string "(double)"
-/* NxS[  81] */ new Table(0, 0, -1, null), // Shortest string "&&"
+/* NxS[  78] */ new Table(0, 0, -1, null), // Shortest string "(int)"
+/* NxS[  79] */ new Table(0, 0, -1, null), // Shortest string "(double)"
+/* NxS[  80] */ new Table(0, 0, -1, null), // Shortest string "&&"
+/* NxS[  81] */ // Shortest string "\"\""
+      new Table(10, 25, 84, new sbyte[] {-1, 84, 84, 84, 84, 84, 
+          84, 84, 84, 84, 84, 84, 84, 84, 84, 84, 84, 84, 84, 84, 84, 84, 
+          84, 84, 81}),
 /* NxS[  82] */ new Table(0, 0, -1, null), // Shortest string "!="
 /* NxS[  83] */ // Shortest string ""
-      new Table(32, 95, -1, new sbyte[] {1, 2, -1, -1, -1, -1, 
-          3, -1, 4, 5, 6, 7, -1, 8, 84, 9, 10, 11, 11, 11, 11, 11, 
+      new Table(32, 95, -1, new sbyte[] {1, 2, 84, -1, -1, -1, 
+          3, -1, 4, 5, 6, 7, -1, 8, -1, 9, 10, 11, 11, 11, 11, 11, 
           11, 11, 11, 11, -1, 12, 13, 14, 15, -1, -1, 16, 16, 16, 16, 16, 
           16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 
           16, 16, 16, 16, 16, -1, -1, -1, -1, -1, -1, 16, 17, 16, 18, 19, 
           20, 16, 16, 21, 16, 16, 16, 16, 16, 16, 22, 16, 23, 16, 24, 16, 
           16, 25, 16, 16, 16, 26, 27, 28, 29}),
-/* NxS[  84] */ // Shortest string "."
-      new Table(42, 1, -1, new sbyte[] {78}),
+/* NxS[  84] */ // Shortest string "\""
+      new Table(10, 25, 84, new sbyte[] {-1, 84, 84, 84, 84, 84, 
+          84, 84, 84, 84, 84, 84, 84, 84, 84, 84, 84, 84, 84, 84, 84, 84, 
+          84, 84, 81}),
 /* NxS[  85] */ // Shortest string "1."
       new Table(48, 10, -1, new sbyte[] {76, 76, 76, 76, 76, 76, 
           76, 76, 76, 76}),
@@ -594,7 +599,7 @@ namespace MiniCompiler
 /* NxS[  88] */ // Shortest string "(in"
       new Table(116, 1, -1, new sbyte[] {89}),
 /* NxS[  89] */ // Shortest string "(int"
-      new Table(41, 1, -1, new sbyte[] {79}),
+      new Table(41, 1, -1, new sbyte[] {78}),
 /* NxS[  90] */ // Shortest string "(do"
       new Table(117, 1, -1, new sbyte[] {91}),
 /* NxS[  91] */ // Shortest string "(dou"
@@ -604,7 +609,7 @@ namespace MiniCompiler
 /* NxS[  93] */ // Shortest string "(doubl"
       new Table(101, 1, -1, new sbyte[] {94}),
 /* NxS[  94] */ // Shortest string "(double"
-      new Table(41, 1, -1, new sbyte[] {80}),
+      new Table(41, 1, -1, new sbyte[] {79}),
     };
 
 int NextState() {
@@ -1188,17 +1193,17 @@ yylval.val=yytext; return (int)Tokens.DoubleNumber;
         case 77: // Recognized '{Comment}',	Shortest string "//"
 { }
             break;
-        case 78: // Recognized '{String}',	Shortest string ".*"
-yylval.val=yytext; return (int)Tokens.String;
-            break;
-        case 79: // Recognized '"(int)"',	Shortest string "(int)"
+        case 78: // Recognized '"(int)"',	Shortest string "(int)"
 return (int)Tokens.IntConversion;
             break;
-        case 80: // Recognized '"(double)"',	Shortest string "(double)"
+        case 79: // Recognized '"(double)"',	Shortest string "(double)"
 return (int)Tokens.DoubleConversion;
             break;
-        case 81: // Recognized '"&&"',	Shortest string "&&"
+        case 80: // Recognized '"&&"',	Shortest string "&&"
 return (int)Tokens.ConditionalAnd;
+            break;
+        case 81: // Recognized '{String}',	Shortest string "\"\""
+yylval.val=yytext; return (int)Tokens.String;
             break;
         case 82: // Recognized '"!="',	Shortest string "!="
 return (int)Tokens.Inequal;

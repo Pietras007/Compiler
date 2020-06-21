@@ -10,13 +10,22 @@ public char    type;
 
 %token Program If Else While Read Write Return Int Double Bool True False Assign ConditionalOr ConditionalAnd BooleanLogicalOr BooleanLogicalAnd Equal Inequal GreaterThan GreaterOrEqual LessThan LessOrEqual Plus Minus Multiplication Divide LogicalNegation BitwiseComplement ParenthesisLeft ParenthesisRight CurlyBracketLeft CurlyBracketRight Semicolon Eof IntConversion DoubleConversion
 %token <val> IntNumber DoubleNumber Identificator Comment String
-%type <type> statement expression A B C D E F logical relation oppadd oppmul binary unar
+%type <type> prestatement statement expression A B C D E F logical relation oppadd oppmul binary unar
 
 %%
 
-start     : Program CurlyBracketLeft statement CurlyBracketRight
+start     : Program CurlyBracketLeft prestatement CurlyBracketRight
           | Program CurlyBracketLeft CurlyBracketRight
           ;
+
+prestatement : Bool Identificator Semicolon
+		  | Bool Identificator Semicolon prestatement
+		  | Int Identificator Semicolon
+		  | Int Identificator Semicolon prestatement
+		  | Double Identificator Semicolon
+		  | Double Identificator Semicolon prestatement
+		  | statement
+		  ;
 
 statement : CurlyBracketLeft statement CurlyBracketRight
           | If ParenthesisLeft expression ParenthesisRight statement
@@ -27,12 +36,6 @@ statement : CurlyBracketLeft statement CurlyBracketRight
 		  |	expression Semicolon statement
 		  | Semicolon
 		  | Semicolon statement
-		  | Bool Identificator Semicolon
-		  | Bool Identificator Semicolon statement
-		  | Int Identificator Semicolon
-		  | Int Identificator Semicolon statement
-		  | Double Identificator Semicolon
-		  | Double Identificator Semicolon statement
 		  | Write expression Semicolon
 		  | Write expression Semicolon statement
 		  | Write String Semicolon

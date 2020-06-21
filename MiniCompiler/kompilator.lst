@@ -1,80 +1,123 @@
 
 // ==========================================================================
-//  GPLEX error listing for lex source file <kompilator.lex>
+//  GPPG error listing for yacc source file <kompilator.y - 6/21/2020 10:27:50 PM>
 // ==========================================================================
-//  Version:  1.2.2
+//  Version:  1.5.2
 //  Machine:  DESKTOP-F60JC3Q
-//  DateTime: 6/21/2020 8:45:23 PM
+//  DateTime: 6/21/2020 10:28:12 PM
 //  UserName: User
 // ==========================================================================
 
 
-%using QUT.Gppg;
+// Uwaga: W wywoÅaniu generatora gppg naleÅ¼y uÅ¼yÄ opcji /gplex
+
 %namespace MiniCompiler
 
-IntNumber   	0|([1-9][0-9]*)
-DoubleNumber 	0|([1-9][0-9]*)\.[0-9]+
-Identificator   [A-Za-z]+[A-Za-z0-9]*
-String			"dupa"
-Comment			"dupe"
+%union
+{
+public string  val;
+public char    type;
+}
 
+%token Program If Else While Read Write Return Int Double Bool True False Assign ConditionalOr ConditionalAnd BooleanLogicalOr BooleanLogicalAnd Equal Inequal GreaterThan GreaterOrEqual LessThan LessOrEqual Plus Minus Multiplication Divide LogicalNegation BitwiseComplement ParenthesisLeft ParenthesisRight CurlyBracketLeft CurlyBracketRight Semicolon Eof IntConversion DoubleConversion
+%token <val> IntNumber DoubleNumber Identificator Comment String
+%type <type> prestatement statement expression A B C D E F logical relation oppadd oppmul binary unar
 
 %%
 
-"program"       { return (int)Tokens.Program; }
-"if"        	{ return (int)Tokens.If; }
-"else"   		{ return (int)Tokens.Else; }
-"while"  		{ return (int)Tokens.While; }
-"read"       	{ return (int)Tokens.Read; }
-"write"         { return (int)Tokens.Write; }
-"return"        { return (int)Tokens.Return; }
-"int"			{ return (int)Tokens.Int; }
-"double"        { return (int)Tokens.Double; }
-"bool"          { return (int)Tokens.Bool; }
-"true"          { return (int)Tokens.True; }
-"false"         { return (int)Tokens.False; }
-"="           	{ return (int)Tokens.Assign; }
-"||"       		{ return (int)Tokens.ConditionalOr; }
-"&&"      		{ return (int)Tokens.ConditionalAnd; }
-"|"          	{ return (int)Tokens.BooleanLogicalOr; }
-"&"          	{ return (int)Tokens.BooleanLogicalAnd; }
-"=="    		{ return (int)Tokens.Equal; }
-"!="            { return (int)Tokens.Inequal; }
-">"				{ return (int)Tokens.GreaterThan; }
-">="        	{ return (int)Tokens.GreaterOrEqual; }
-"<"          	{ return (int)Tokens.LessThan; }
-"<="          	{ return (int)Tokens.LessOrEqual; }
-"+"         	{ return (int)Tokens.Plus; }
-"-"           	{ return (int)Tokens.Minus; }
-"*"       		{ return (int)Tokens.Multiplication; }
-"/"       		{ return (int)Tokens.Divide; }
-"!"       		{ return (int)Tokens.LogicalNegation; }
-"~"       		{ return (int)Tokens.BitwiseComplement; }
-"("       		{ return (int)Tokens.ParenthesisLeft; }
-")"       		{ return (int)Tokens.ParenthesisRight; }
-"{"       		{ return (int)Tokens.CurlyBracketLeft; }
-"}"       		{ return (int)Tokens.CurlyBracketRight; }
-";"       		{ return (int)Tokens.Semicolon; }
-"(int)"       	{ return (int)Tokens.IntConversion; }
-"(double)"  	{ return (int)Tokens.DoubleConversion; }
-" "       		{ }
-<<EOF>>       	{ return (int)Tokens.Eof; }
-{IntNumber}		{ yylval.val=yytext; return (int)Tokens.IntNumber; }
-{DoubleNumber}	{ yylval.val=yytext; return (int)Tokens.DoubleNumber; }
-{Identificator}	{ yylval.val=yytext; return (int)Tokens.Identificator; }
-//^^^^^^^^^^^^^
-// Warning: This pattern always overrides "{String}" 
-// Warning: This pattern always overrides "{Comment}" 
-// ---------------------------------------------------
-{String}		{ yylval.val=yytext; return (int)Tokens.String; }
-//^^^^^^
-// Warning: This pattern always overridden by "{Identificator}" 
-// -------------------------------------------------------------
-{Comment}		{ }
+start     : Program CurlyBracketLeft prestatement CurlyBracketRight
+          | Program CurlyBracketLeft CurlyBracketRight
+          ;
+
+prestatement : Bool Identificator Semicolon
+		  | Bool Identificator Semicolon prestatement
+		  | Int Identificator Semicolon
+		  | Int Identificator Semicolon prestatement
+		  | Double Identificator Semicolon
+		  | Double Identificator Semicolon prestatement
+		  | statement
+
+statement : CurlyBracketLeft statement CurlyBracketRight
 //^^^^^^^
-// Warning: This pattern always overridden by "{Identificator}" 
-// -------------------------------------------------------------
+// Error: Syntax error, unexpected anchoredSymbol
+// ----------------------------------------------
+          | If ParenthesisLeft expression ParenthesisRight statement
+		  |	While ParenthesisLeft expression ParenthesisRight statement
+		  |	Return Semicolon
+		  |	Return Semicolon statement
+		  |	expression Semicolon
+		  |	expression Semicolon statement
+		  | Semicolon
+		  | Semicolon statement
+		  | Write expression Semicolon
+		  | Write expression Semicolon statement
+		  | Write String Semicolon
+		  | Write String Semicolon statement
+		  | Read Identificator Semicolon
+		  | Read Identificator Semicolon statement
+		  | CurlyBracketLeft CurlyBracketRight
+          ;
 
+expression : Identificator Assign A
+          | A
+          ;
 
-// ==========================================================================
+A         : A logical B
+          | B
+          ;
+		  
+logical   : ConditionalOr
+          | ConditionalAnd
+          ;
+
+B		  : B relation C
+          | C
+          ;
+
+relation  : Equal
+          | Inequal
+		  | GreaterThan
+		  | GreaterOrEqual 
+		  | LessThan
+		  | LessOrEqual
+          ;
+		  
+C		  : C oppadd D
+          | D
+          ;
+		  
+oppadd    : Plus
+          | Minus
+          ;
+		  
+D		  : D oppmul E
+          | E
+          ;
+		  
+oppmul    : Multiplication
+          | Divide
+          ;
+		  
+E		  : E binary F
+          | F
+          ;
+
+binary    : BooleanLogicalOr
+          | BooleanLogicalAnd
+          ;
+		  
+F		  : unar F
+          | Identificator
+		  | IntNumber
+		  |	DoubleNumber
+		  | ParenthesisLeft expression ParenthesisRight
+          ;
+		  
+unar      : Minus
+          | BitwiseComplement
+		  | LogicalNegation
+		  |	IntConversion
+		  |	DoubleConversion
+          ;
+%%// ==========================================================================
 
