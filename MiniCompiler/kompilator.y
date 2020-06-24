@@ -9,9 +9,9 @@
 	public bool b_val;
 	public int i_val;
 	public double d_val;
-	public Statement stat;
-	public Expression expression;
-	public OperationType opptype;
+	public Parser.Statement stat; //Statement
+	public Parser.Expression expression; //Expression
+	public Parser.OperationType opptype; //OperationType
 }
 
 %token Program If Else While Read Write Return Int Double Bool True False Assign ConditionalOr ConditionalAnd BooleanLogicalOr BooleanLogicalAnd Equal Inequal GreaterThan GreaterOrEqual LessThan LessOrEqual Plus Minus Multiplication Divide LogicalNegation BitwiseComplement ParenthesisLeft ParenthesisRight CurlyBracketLeft CurlyBracketRight Semicolon Eof IntConversion DoubleConversion
@@ -26,23 +26,23 @@
 %%
 
 start     : Program CurlyBracketLeft prestatement CurlyBracketRight
-			{ $$ = $3; }
+			{ program = $3; }
           | Program CurlyBracketLeft CurlyBracketRight
-			{ $$ = new Empty_Statement(); }
+			{ program = new Empty_Statement(); }
           ;
 
 prestatement : Bool Identificator Semicolon
 			{ $$ = new Declaration_Statement(ValueType.bool_val, $2); }
 		  | Bool Identificator Semicolon prestatement
-			{ $$ = new Declaration_Statement(ValueType.bool_val, $2, $3); }
+			{ $$ = new Declaration_Statement(ValueType.bool_val, $2, $4); }
 		  | Int Identificator Semicolon
 			{ $$ = new Declaration_Statement(ValueType.int_val, $2); }
 		  | Int Identificator Semicolon prestatement
-			{ $$ = new Declaration_Statement(ValueType.int_val, $2, $3); }
+			{ $$ = new Declaration_Statement(ValueType.int_val, $2, $4); }
 		  | Double Identificator Semicolon
 			{ $$ = new Declaration_Statement(ValueType.double_val, $2); }
 		  | Double Identificator Semicolon prestatement
-			{ $$ = new Declaration_Statement(ValueType.double_val, $2, $3); }
+			{ $$ = new Declaration_Statement(ValueType.double_val, $2, $4); }
 		  | statement
 			{ $$ = $1; }
 		  ;
@@ -70,13 +70,13 @@ statement : CurlyBracketLeft statement CurlyBracketRight
 		  | Write expression Semicolon statement
 			{ $$ = new Write_Statement($2, $4); }
 		  | Write String Semicolon
-			{ $$ = new Write_Statement($2); }
+			{ $$ = new Write_Statement(new Value($2)); }
 		  | Write String Semicolon statement
-			{ $$ = new Write_Statement($2, $4); }
+			{ $$ = new Write_Statement(new Value($2), $4); }
 		  | Read Identificator Semicolon
-			{ $$ = Read_Statement($2); }
+			{ $$ = new Read_Statement(new Value($2)); }
 		  | Read Identificator Semicolon statement
-			{ $$ = Read_Statement($2, $4); }
+			{ $$ = new Read_Statement(new Value($2), $4); }
 		  | CurlyBracketLeft CurlyBracketRight
 			{ $$ = new Empty_Statement(); }
           ;
@@ -134,7 +134,7 @@ oppadd    : Plus
 D		  : D oppmul E
 			{ $$ = new Operand($1, $2 ,$3); }
           | E
-			{ $$ = $1 }
+			{ $$ = $1; }
           ;
 		  
 oppmul    : Multiplication
@@ -146,7 +146,7 @@ oppmul    : Multiplication
 E		  : E binary F
 			{ $$ = new Operand($1, $2 ,$3); }
           | F
-			{ $$ = $1 }
+			{ $$ = $1; }
           ;
 
 binary    : BooleanLogicalOr
@@ -156,7 +156,7 @@ binary    : BooleanLogicalOr
           ;
 		  
 F		  : unar F
-			{ $$ = new Operand($1, $2)}
+			{ $$ = new Operand($1, $2); }
           | Identificator
 			{ $$ = new Value($1);}
 		  | IntNumber
@@ -184,251 +184,258 @@ unar      : Minus
 
 %%
 
-public enum StatementType
-{
-	EmptyStatement,
-	IfStatement,
-	IfElseStatement,
-	WhileStatement,
-	ReturnStatement,
-	WriteStatement,
-	ReadStatement,
-	Declaration,
-	Expression
-}
-
-public enum OperationType
-{
-	Assign,
-	Equal,
-	Inequal,
-	GreaterThan,
-	GreaterOrEqual,
-	LessThan,
-	LessOrEqual,
-	Plus,
-    Minus,
-	Multiplication,
-    Divide,
-	BooleanLogicalOr,
-    BooleanLogicalAnd
-}
-
-public enum ValueType
-{
-	bool_val,
-	int_val,
-	double_val,
-	string_val,
-	identificator
-}
-
-public abstract class Statement
-{
-	public StatementType Type;
-}
-
-public class Empty_Statement : Statement
-{
-	public Empty_Statement()
-	{
-		Type = StatementType.EmptyStatement;
-	}
-}
-
-public class If_Statement : Statement
-{
-	public Expression _ex;
-	public Statement _st;
-	public Statement _else_st;
-
-	public If_Statement(Expression ex, Statement st)
-	{
-		_ex = ex;
-		_st = st;
-		Type = StatementType.IfStatement;
-	}
-
-	public If_Statement(Expression ex, Statement st, Statement else_st)
-	{
-		_ex = ex;
-		_st = st;
-		_else_st = else_st;
-		Type = StatementType.IfElseStatement;
-	}
-}
-
-public class While_Statement : Statement
-{
-	public Expression _ex;
-	public Statement _st;
-
-	public While_Statement(Expression ex, Statement st)
-	{
-		_ex = ex;
-		_st = st;
-		Type = StatementType.WhileStatement;
-	}
-}
-
-public class Declaration_Statement :  Statement
-{
-	public Expression _ex;
-	public ValueType _type;
-	public string _val_name;
-	public Declaration_Statement(ValueType type, string val_name)
-	{
-		_type = type;
-		_val_name = val_name;
-		Type = StatementType.Declaration;
-	}
-
-	public Declaration_Statement(ValueType type, string val_name, Expression ex)
-	{
-		_type = type;
-		_val_name = val_name;
-		_ex = ex;
-		Type = StatementType.Declaration;
-	}
-}
-
-public class Return_Statement : Statement
-{
-	public Return_Statement()
-	{
-		Type = StatementType.ReturnStatement;
-	}
-}
-
-public class Write_Statement : Statement
-{
-	public Expression _ex;
-	public Statement _st;
-	public string _string;
-	public Write_Statement(Expression ex)
-	{
-		_ex = ex;
-		Type = StatementType.WriteStatement;
-	}
-
-	public Write_Statement(Expression ex, Statement st)
-	{
-		_st = st;
-		_ex = ex;
-		Type = StatementType.WriteStatement;
-	}
-
-	public Write_Statement(string _str)
-	{
-		_string = _str;
-		Type = StatementType.WriteStatement;
-	}
-
-	public Write_Statement(string _str, Statement st)
-	{
-		_st = st;
-		_string = _str;
-		Type = StatementType.WriteStatement;
-	}
-}
-
-public class Read_Statement : Statement
-{
-	public Value _ident;
-	public Statement _st;
-	public Read_Statement(Value ident)
-	{
-		_ident = ident;
-		Type = StatementType.ReadStatement;
-	}
-
-	public Read_Statement(Value ident, Statement st)
-	{
-		_ident = ident;
-		_st = st;
-		Type = StatementType.ReadStatement;
-	}
-}
-
-public class Expression_Statement : Statement
-{
-	Expression _ex;
-	Statement _st;
-
-	public Expression_Statement(Expression ex)
-	{
-		_ex = ex;
-		Type = StatementType.Expression;
-	}
-
-	public Expression_Statement(Expression ex, Statement st)
-	{
-		_ex = ex;
-		_st = st;
-		Type = StatementType.Expression;
-	}
-}
-
-public abstract class Expression
-{
-	public ValueType Type;
-}
-
-
-public class Operand : Expression
-{
-	public OperationType _type;
-	public Expression _exL;
-	public Expression _exR;
-
-	public Operand(Expression exL, OperationType type, Expression exR)
-	{
-		_exL = exL;
-		_exR = exR;
-		_type = type;
-	}
-
-	public Operand(OperationType type, Expression exR)
-	{
-		_type = type;
-		_exR = exR;
-	}
-}
-
-public class Value : Expression
-{
-	public bool _val_bool;
-	public int _val_int;
-	public double _val_double;
-	public string _identificator;
-
-	public Value(bool val_bool)
-	{
-		_val_bool = val_bool;
-		Type = ValueType.bool_val;
-	}
-
-	public Value(int val_int)
-	{
-		_val_int = val_int;
-		Type = ValueType.int_val;
-	}
-
-	public Value(double val_double)
-	{
-		_val_double = val_double;
-		Type = ValueType.double_val;
-	}
-
-	public Value(string identificator)
-	{
-		_identificator = identificator;
-		Type = ValueType.identificator;
-	}
-}
-
-
+public Statement program;
 
 int lineno=1;
 
 public Parser(Scanner scanner) : base(scanner) { }
+
+
+    public enum StatementType
+    {
+        EmptyStatement,
+        IfStatement,
+        IfElseStatement,
+        WhileStatement,
+        ReturnStatement,
+        WriteStatement,
+        ReadStatement,
+        Declaration,
+        Expression
+    }
+
+    public enum OperationType
+    {
+        Assign,
+        Equal,
+        Inequal,
+        GreaterThan,
+        GreaterOrEqual,
+        LessThan,
+        LessOrEqual,
+        Plus,
+        Minus,
+        Multiplication,
+        Divide,
+        BooleanLogicalOr,
+        BooleanLogicalAnd,
+        ConditionalOr,
+        ConditionalAnd,
+		BitwiseComplement,
+		LogicalNegation,
+		IntConversion,
+		DoubleConversion
+    }
+
+    public enum ValueType
+    {
+        bool_val,
+        int_val,
+        double_val,
+        string_val,
+        identificator
+    }
+
+	public abstract class Statement
+    {
+        public StatementType Type;
+    }
+
+    public class Empty_Statement : Statement
+    {
+        public Empty_Statement()
+        {
+            Type = StatementType.EmptyStatement;
+        }
+    }
+
+    public class If_Statement : Statement
+    {
+        public Expression _ex;
+        public Statement _st;
+        public Statement _else_st;
+
+        public If_Statement(Expression ex, Statement st)
+        {
+            _ex = ex;
+            _st = st;
+            Type = StatementType.IfStatement;
+        }
+
+        public If_Statement(Expression ex, Statement st, Statement else_st)
+        {
+            _ex = ex;
+            _st = st;
+            _else_st = else_st;
+            Type = StatementType.IfElseStatement;
+        }
+    }
+
+    public class While_Statement : Statement
+    {
+        public Expression _ex;
+        public Statement _st;
+
+        public While_Statement(Expression ex, Statement st)
+        {
+            _ex = ex;
+            _st = st;
+            Type = StatementType.WhileStatement;
+        }
+    }
+
+    public class Declaration_Statement : Statement
+    {
+        public Statement _st;
+        public ValueType _type;
+        public string _val_name;
+        public Declaration_Statement(ValueType type, string val_name)
+        {
+            _type = type;
+            _val_name = val_name;
+            Type = StatementType.Declaration;
+        }
+
+        public Declaration_Statement(ValueType type, string val_name, Statement st)
+        {
+            _type = type;
+            _val_name = val_name;
+            _st = st;
+            Type = StatementType.Declaration;
+        }
+    }
+
+    public class Return_Statement : Statement
+    {
+        public Return_Statement()
+        {
+            Type = StatementType.ReturnStatement;
+        }
+    }
+
+    public class Write_Statement : Statement
+    {
+        public Expression _ex;
+        public Statement _st;
+        public string _string;
+        public Write_Statement(Expression ex)
+        {
+            _ex = ex;
+            Type = StatementType.WriteStatement;
+        }
+
+        public Write_Statement(Expression ex, Statement st)
+        {
+            _st = st;
+            _ex = ex;
+            Type = StatementType.WriteStatement;
+        }
+
+        public Write_Statement(string _str)
+        {
+            _string = _str;
+            Type = StatementType.WriteStatement;
+        }
+
+        public Write_Statement(string _str, Statement st)
+        {
+            _st = st;
+            _string = _str;
+            Type = StatementType.WriteStatement;
+        }
+    }
+
+    public class Read_Statement : Statement
+    {
+        public Value _ident;
+        public Statement _st;
+        public Read_Statement(Value ident)
+        {
+            _ident = ident;
+            Type = StatementType.ReadStatement;
+        }
+
+        public Read_Statement(Value ident, Statement st)
+        {
+            _ident = ident;
+            _st = st;
+            Type = StatementType.ReadStatement;
+        }
+    }
+
+    public class Expression_Statement : Statement
+    {
+        Expression _ex;
+        Statement _st;
+
+        public Expression_Statement(Expression ex)
+        {
+            _ex = ex;
+            Type = StatementType.Expression;
+        }
+
+        public Expression_Statement(Expression ex, Statement st)
+        {
+            _ex = ex;
+            _st = st;
+            Type = StatementType.Expression;
+        }
+    }
+
+    public abstract class Expression
+    {
+        public ValueType Type;
+    }
+
+
+    public class Operand : Expression
+    {
+        public OperationType _type;
+        public Expression _exL;
+        public Expression _exR;
+
+        public Operand(Expression exL, OperationType type, Expression exR)
+        {
+            _exL = exL;
+            _exR = exR;
+            _type = type;
+        }
+
+        public Operand(OperationType type, Expression exR)
+        {
+            _type = type;
+            _exR = exR;
+        }
+    }
+
+    public class Value : Expression
+    {
+        public bool _val_bool;
+        public int _val_int;
+        public double _val_double;
+        public string _identificator;
+
+        public Value(bool val_bool)
+        {
+            _val_bool = val_bool;
+            Type = ValueType.bool_val;
+        }
+
+        public Value(int val_int)
+        {
+            _val_int = val_int;
+            Type = ValueType.int_val;
+        }
+
+        public Value(double val_double)
+        {
+            _val_double = val_double;
+            Type = ValueType.double_val;
+        }
+
+        public Value(string identificator)
+        {
+            _identificator = identificator;
+            Type = ValueType.identificator;
+        }
+    }
