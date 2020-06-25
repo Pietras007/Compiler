@@ -1,6 +1,7 @@
 %using QUT.Gppg;
 %namespace MiniCompiler
 
+BooleanNumber	"true"|"false"
 IntNumber   	0|([1-9][0-9]*)
 DoubleNumber 	0|([1-9][0-9]*)\.[0-9]+
 Identificator   [A-Za-z]+[A-Za-z0-9]*
@@ -48,8 +49,8 @@ Comment			"//".*
 "(double)"  	{ return (int)Tokens.DoubleConversion; }
 " "       		{ }
 <<EOF>>       	{ return (int)Tokens.Eof; }
-{IntNumber}		{ yylval.val=yytext; return (int)Tokens.IntNumber; }
-{DoubleNumber}	{ yylval.val=yytext; return (int)Tokens.DoubleNumber; }
+{IntNumber}		{ yylval.i_val=Int32.Parse(yytext); return (int)Tokens.IntNumber; }
+{DoubleNumber}	{ yylval.d_val=Double.Parse(yytext); return (int)Tokens.DoubleNumber; }
 {Identificator}	{ yylval.val=yytext; return (int)Tokens.Identificator; }
 {String}		{ yylval.val=yytext; return (int)Tokens.String; }
 {Comment}		{ }

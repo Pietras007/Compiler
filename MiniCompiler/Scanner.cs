@@ -6,9 +6,9 @@
 //
 //  GPLEX Version:  1.2.2
 //  Machine:  DESKTOP-F60JC3Q
-//  DateTime: 6/25/2020 2:01:55 AM
+//  DateTime: 6/25/2020 9:54:20 PM
 //  UserName: User
-//  GPLEX input file <kompilator.lex - 6/25/2020 1:01:08 AM>
+//  GPLEX input file <kompilator.lex - 6/25/2020 9:26:07 PM>
 //  GPLEX frame file <embedded resource>
 //
 //  Option settings: verbose, parser, minimize
@@ -1071,7 +1071,7 @@ return (int)Tokens.Divide;
             break;
         case 10: // Recognized '{IntNumber}',	Shortest string "0"
         case 11: // Recognized '{IntNumber}',	Shortest string "1"
-yylval.val=yytext; return (int)Tokens.IntNumber;
+yylval.i_val=Int32.Parse(yytext); return (int)Tokens.IntNumber;
             break;
         case 12: // Recognized '";"',	Shortest string ";"
 return (int)Tokens.Semicolon;
@@ -1188,7 +1188,7 @@ return (int)Tokens.Equal;
 return (int)Tokens.LessOrEqual;
             break;
         case 76: // Recognized '{DoubleNumber}',	Shortest string "1.0"
-yylval.val=yytext; return (int)Tokens.DoubleNumber;
+yylval.d_val=Double.Parse(yytext); return (int)Tokens.DoubleNumber;
             break;
         case 77: // Recognized '{Comment}',	Shortest string "//"
 { }

@@ -25,10 +25,14 @@
 
 %%
 
-start     : Program CurlyBracketLeft prestatement CurlyBracketRight
-			{ program = $3;  Console.WriteLine("dupa"); }
-          | Program CurlyBracketLeft CurlyBracketRight
-			{ program = new Empty_Statement(); }
+start     : Program CurlyBracketLeft prestatement CurlyBracketRight Eof
+			{ program = $3; Console.WriteLine("Tree OK"); YYACCEPT; }
+          | Program CurlyBracketLeft CurlyBracketRight Eof
+			{ program = new Empty_Statement(); Console.WriteLine("Tree OK"); YYACCEPT; }
+		  |	error Semicolon
+			{ yyerrok(); Console.WriteLine("error");}
+	      | error Eof
+			{Console.WriteLine("error");}
           ;
 
 prestatement : Bool Identificator Semicolon
@@ -157,14 +161,14 @@ binary    : BooleanLogicalOr
 		  
 F		  : unar F
 			{ $$ = new Operand($1, $2); }
-          | Identificator
-			{ $$ = new Value($1);}
 		  | IntNumber
 			{ $$ = new Value($1); }
 		  |	DoubleNumber
 			{ $$ = new Value($1); }
 		  | BooleanNumber
 			{ $$ = new Value($1); }
+          | Identificator
+			{ $$ = new Value($1);}
 		  | ParenthesisLeft expression ParenthesisRight
 			{ $$ = $2; }
           ;

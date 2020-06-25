@@ -40,12 +40,13 @@ namespace MiniCompiler
             }
             Scanner scanner = new Scanner(source);
             Parser parser = new Parser(scanner);
-
-            var x = Parser.program;
             Console.WriteLine();
             sw = new StreamWriter(file + ".il");
             GenProlog();
             parser.Parse();
+
+            var x = Parser.program;
+
             GenEpilog();
             sw.Close();
             source.Close();
