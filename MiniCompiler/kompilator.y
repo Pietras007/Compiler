@@ -61,10 +61,7 @@ statement : CurlyBracketLeft statement CurlyBracketRight
 			{ $$ = new Expression_Statement($1); }
 		  |	expression Semicolon statement
 			{ $$ = new Expression_Statement($1, $3); }
-		  | Semicolon
-			{ yyerrok(); Console.WriteLine("semicolon error, line: " + Compiler.lines.ToString()); Compiler.errors++; }
-		  | Semicolon statement
-			{ yyerrok(); Console.WriteLine("semicolon error, line: " + Compiler.lines.ToString()); Compiler.errors++; }
+
 		  | Write expression Semicolon
 			{ $$ = new Write_Statement($2); }
 		  | Write expression Semicolon statement
@@ -156,7 +153,7 @@ binary    : BooleanLogicalOr
           ;
 		  
 F		  : unar F
-			{ $$ = new Operand($1, $2); }
+			{ $$ = new UnaryOperand($1, $2); }
 		  | IntNumber
 			{ $$ = new Value($1); }
 		  |	DoubleNumber
@@ -192,7 +189,6 @@ public static Statement program;
 
 public Parser(Scanner scanner) : base(scanner) { }
 
-
     public enum StatementType
     {
         EmptyStatement,
@@ -223,10 +219,10 @@ public Parser(Scanner scanner) : base(scanner) { }
         BooleanLogicalAnd,
         ConditionalOr,
         ConditionalAnd,
-		BitwiseComplement,
-		LogicalNegation,
-		IntConversion,
-		DoubleConversion
+        BitwiseComplement,
+        LogicalNegation,
+        IntConversion,
+        DoubleConversion
     }
 
     public enum ValueType
@@ -238,9 +234,10 @@ public Parser(Scanner scanner) : base(scanner) { }
         identificator
     }
 
-	public abstract class Statement
+    public abstract class Statement
     {
         public StatementType Type;
+        public abstract bool Check();
     }
 
     public class Empty_Statement : Statement
@@ -248,6 +245,11 @@ public Parser(Scanner scanner) : base(scanner) { }
         public Empty_Statement()
         {
             Type = StatementType.EmptyStatement;
+        }
+
+        public override bool Check()
+        {
+            return true;
         }
     }
 
@@ -271,6 +273,16 @@ public Parser(Scanner scanner) : base(scanner) { }
             _else_st = else_st;
             Type = StatementType.IfElseStatement;
         }
+
+        public override bool Check()
+        {
+            if (_ex.Check() && _st.Check() && (_else_st == null || _else_st.Check()))
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 
     public class While_Statement : Statement
@@ -283,6 +295,16 @@ public Parser(Scanner scanner) : base(scanner) { }
             _ex = ex;
             _st = st;
             Type = StatementType.WhileStatement;
+        }
+
+        public override bool Check()
+        {
+            if (_ex.Check() && _st.Check())
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 
@@ -305,6 +327,16 @@ public Parser(Scanner scanner) : base(scanner) { }
             _st = st;
             Type = StatementType.Declaration;
         }
+
+        public override bool Check()
+        {
+            if ((_st == null || _st.Check()) && !Compiler.identifiers.Contains(_val_name))
+            {
+                return true;
+            }
+
+			return false;
+        }
     }
 
     public class Return_Statement : Statement
@@ -312,6 +344,11 @@ public Parser(Scanner scanner) : base(scanner) { }
         public Return_Statement()
         {
             Type = StatementType.ReturnStatement;
+        }
+
+        public override bool Check()
+        {
+            return true;
         }
     }
 
@@ -345,6 +382,16 @@ public Parser(Scanner scanner) : base(scanner) { }
             _string = _str;
             Type = StatementType.WriteStatement;
         }
+
+        public override bool Check()
+        {
+            if ((_ex == null || _ex.Check()) && (_st == null || _st.Check()) && _string != null)
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 
     public class Read_Statement : Statement
@@ -362,6 +409,16 @@ public Parser(Scanner scanner) : base(scanner) { }
             _ident = ident;
             _st = st;
             Type = StatementType.ReadStatement;
+        }
+
+        public override bool Check()
+        {
+            if (Compiler.identifiers.Contains(_ident._identificator) && (_st == null || _st.Check()))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 
@@ -382,11 +439,22 @@ public Parser(Scanner scanner) : base(scanner) { }
             _st = st;
             Type = StatementType.Expression;
         }
+
+        public override bool Check()
+        {
+            if (_ex.Check() && (_st == null || _st.Check()))
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 
     public abstract class Expression
     {
         public ValueType Type;
+        public abstract bool Check();
     }
 
 
@@ -403,10 +471,40 @@ public Parser(Scanner scanner) : base(scanner) { }
             _type = type;
         }
 
-        public Operand(OperationType type, Expression exR)
+        public override bool Check()
+        {
+            if (_exL is Value && _exR is Value)
+            {
+                return true;
+            }
+            else
+            {
+                return _exL.Check() && _exR.Check();
+            }
+        }
+    }
+
+    public class UnaryOperand : Expression
+    {
+        public OperationType _type;
+        public Expression _exR;
+
+        public UnaryOperand(OperationType type, Expression exR)
         {
             _type = type;
             _exR = exR;
+        }
+
+        public override bool Check()
+        {
+            if (_exR is Value)
+            {
+                return true;
+            }
+            else
+            {
+                return _exR.Check();
+            }
         }
     }
 
@@ -439,5 +537,15 @@ public Parser(Scanner scanner) : base(scanner) { }
         {
             _identificator = identificator;
             Type = ValueType.identificator;
+        }
+
+        public override bool Check()
+        {
+            return true;
+        }
+
+        public ValueType GetValueType()
+        {
+            return Type;
         }
     }

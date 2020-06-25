@@ -11,6 +11,7 @@ namespace MiniCompiler
     {
         public static int errors = 0;
         public static int lines = 1;
+        public static List<string> identifiers = new List<string>();
         public static List<string> source;
         private static StreamWriter sw;
 
