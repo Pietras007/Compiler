@@ -26,7 +26,7 @@
 %%
 
 start     : Program CurlyBracketLeft prestatement CurlyBracketRight
-			{ program = $3; }
+			{ program = $3;  Console.WriteLine("dupa"); }
           | Program CurlyBracketLeft CurlyBracketRight
 			{ program = new Empty_Statement(); }
           ;
@@ -184,7 +184,7 @@ unar      : Minus
 
 %%
 
-public Statement program;
+public static Statement program;
 
 int lineno=1;
 

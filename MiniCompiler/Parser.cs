@@ -4,9 +4,9 @@
 
 // GPPG version 1.5.2
 // Machine:  DESKTOP-F60JC3Q
-// DateTime: 6/25/2020 1:50:04 AM
+// DateTime: 6/25/2020 2:01:55 AM
 // UserName: User
-// Input file <kompilator.y - 6/25/2020 1:50:01 AM>
+// Input file <kompilator.y - 6/25/2020 2:01:48 AM>
 
 // options: lines gplex
 
@@ -257,7 +257,7 @@ public class Parser: ShiftReduceParser<ValueType, LexLocation>
     {
       case 2: // start -> Program, CurlyBracketLeft, prestatement, CurlyBracketRight
 #line 29 "kompilator.y"
-   { program = ValueStack[ValueStack.Depth-2].stat; }
+   { program = ValueStack[ValueStack.Depth-2].stat;  Console.WriteLine("dupa"); }
 #line default
         break;
       case 3: // start -> Program, CurlyBracketLeft, CurlyBracketRight
@@ -581,7 +581,7 @@ public class Parser: ShiftReduceParser<ValueType, LexLocation>
 
 #line 186 "kompilator.y"
 
-public Statement program;
+public static Statement program;
 
 int lineno=1;
 
