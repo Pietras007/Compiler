@@ -26,13 +26,9 @@
 %%
 
 start     : Program CurlyBracketLeft prestatement CurlyBracketRight Eof
-			{ program = $3; Console.WriteLine("Tree OK"); YYACCEPT; }
+			{ program = $3; Console.WriteLine("Tree finished"); YYACCEPT; }
           | Program CurlyBracketLeft CurlyBracketRight Eof
-			{ program = new Empty_Statement(); Console.WriteLine("Tree OK"); YYACCEPT; }
-		  |	error Semicolon
-			{ yyerrok(); Console.WriteLine("error");}
-	      | error Eof
-			{Console.WriteLine("error");}
+			{ program = new Empty_Statement(); Console.WriteLine("Tree finished"); YYACCEPT; }
           ;
 
 prestatement : Bool Identificator Semicolon
@@ -66,9 +62,9 @@ statement : CurlyBracketLeft statement CurlyBracketRight
 		  |	expression Semicolon statement
 			{ $$ = new Expression_Statement($1, $3); }
 		  | Semicolon
-			{ $$ = new Empty_Statement(); }
+			{ yyerrok(); Console.WriteLine("semicolon error, line: " + Compiler.lines.ToString()); Compiler.errors++; }
 		  | Semicolon statement
-			{ $$ = $2; }
+			{ yyerrok(); Console.WriteLine("semicolon error, line: " + Compiler.lines.ToString()); Compiler.errors++; }
 		  | Write expression Semicolon
 			{ $$ = new Write_Statement($2); }
 		  | Write expression Semicolon statement
@@ -171,6 +167,10 @@ F		  : unar F
 			{ $$ = new Value($1);}
 		  | ParenthesisLeft expression ParenthesisRight
 			{ $$ = $2; }
+		  | error Semicolon
+		    { yyerrok(); Console.WriteLine("error syntax, line: " + Compiler.lines.ToString()); Compiler.errors++;  }
+		  | error Eof
+		    { yyerrok(); Console.WriteLine("something missing, line: " + Compiler.lines.ToString()); Compiler.errors++; YYACCEPT; }
           ;
 		  
 unar      : Minus
@@ -189,8 +189,6 @@ unar      : Minus
 %%
 
 public static Statement program;
-
-int lineno=1;
 
 public Parser(Scanner scanner) : base(scanner) { }
 

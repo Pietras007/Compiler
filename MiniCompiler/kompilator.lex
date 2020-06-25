@@ -21,8 +21,6 @@ Comment			"//".*
 "int"			{ return (int)Tokens.Int; }
 "double"        { return (int)Tokens.Double; }
 "bool"          { return (int)Tokens.Bool; }
-"true"          { return (int)Tokens.True; }
-"false"         { return (int)Tokens.False; }
 "="           	{ return (int)Tokens.Assign; }
 "||"       		{ return (int)Tokens.ConditionalOr; }
 "&&"      		{ return (int)Tokens.ConditionalAnd; }
@@ -51,6 +49,8 @@ Comment			"//".*
 <<EOF>>       	{ return (int)Tokens.Eof; }
 {IntNumber}		{ yylval.i_val=Int32.Parse(yytext); return (int)Tokens.IntNumber; }
 {DoubleNumber}	{ yylval.d_val=Double.Parse(yytext); return (int)Tokens.DoubleNumber; }
+{BooleanNumber}	{ yylval.b_val=Boolean.Parse(yytext); return (int)Tokens.BooleanNumber; }
 {Identificator}	{ yylval.val=yytext; return (int)Tokens.Identificator; }
 {String}		{ yylval.val=yytext; return (int)Tokens.String; }
 {Comment}		{ }
+"\n"			{ Compiler.lines++; }

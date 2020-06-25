@@ -10,6 +10,7 @@ namespace MiniCompiler
     public class Compiler
     {
         public static int errors = 0;
+        public static int lines = 1;
         public static List<string> source;
         private static StreamWriter sw;
 
@@ -46,7 +47,6 @@ namespace MiniCompiler
             parser.Parse();
 
             var x = Parser.program;
-
             GenEpilog();
             sw.Close();
             source.Close();
