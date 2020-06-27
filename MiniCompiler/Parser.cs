@@ -4,9 +4,9 @@
 
 // GPPG version 1.5.2
 // Machine:  DESKTOP-F60JC3Q
-// DateTime: 6/27/2020 3:09:02 AM
+// DateTime: 6/27/2020 1:55:19 PM
 // UserName: User
-// Input file <kompilator.y - 6/27/2020 3:08:52 AM>
+// Input file <kompilator.y - 6/27/2020 1:53:15 PM>
 
 // options: lines gplex
 
@@ -16,7 +16,6 @@ using System.CodeDom.Compiler;
 using System.Globalization;
 using System.Text;
 using QUT.Gppg;
-using System.Linq;
 
 namespace MiniCompiler
 {
@@ -271,32 +270,32 @@ public class Parser: ShiftReduceParser<ValueType, LexLocation>
         break;
       case 4: // prestatement -> Bool, Identificator, Semicolon
 #line 35 "kompilator.y"
-   { CurrentSemanticValue.stat = new Declaration_Statement(ValueType.bool_val, ValueStack[ValueStack.Depth-2].val); }
+   { CurrentSemanticValue.stat = new Declaration_Statement(TypeOfValue.bool_val, ValueStack[ValueStack.Depth-2].val); }
 #line default
         break;
       case 5: // prestatement -> Bool, Identificator, Semicolon, prestatement
 #line 37 "kompilator.y"
-   { CurrentSemanticValue.stat = new Declaration_Statement(ValueType.bool_val, ValueStack[ValueStack.Depth-3].val, ValueStack[ValueStack.Depth-1].stat); }
+   { CurrentSemanticValue.stat = new Declaration_Statement(TypeOfValue.bool_val, ValueStack[ValueStack.Depth-3].val, ValueStack[ValueStack.Depth-1].stat); }
 #line default
         break;
       case 6: // prestatement -> Int, Identificator, Semicolon
 #line 39 "kompilator.y"
-   { CurrentSemanticValue.stat = new Declaration_Statement(ValueType.int_val, ValueStack[ValueStack.Depth-2].val); }
+   { CurrentSemanticValue.stat = new Declaration_Statement(TypeOfValue.int_val, ValueStack[ValueStack.Depth-2].val); }
 #line default
         break;
       case 7: // prestatement -> Int, Identificator, Semicolon, prestatement
 #line 41 "kompilator.y"
-   { CurrentSemanticValue.stat = new Declaration_Statement(ValueType.int_val, ValueStack[ValueStack.Depth-3].val, ValueStack[ValueStack.Depth-1].stat); }
+   { CurrentSemanticValue.stat = new Declaration_Statement(TypeOfValue.int_val, ValueStack[ValueStack.Depth-3].val, ValueStack[ValueStack.Depth-1].stat); }
 #line default
         break;
       case 8: // prestatement -> Double, Identificator, Semicolon
 #line 43 "kompilator.y"
-   { CurrentSemanticValue.stat = new Declaration_Statement(ValueType.double_val, ValueStack[ValueStack.Depth-2].val); }
+   { CurrentSemanticValue.stat = new Declaration_Statement(TypeOfValue.double_val, ValueStack[ValueStack.Depth-2].val); }
 #line default
         break;
       case 9: // prestatement -> Double, Identificator, Semicolon, prestatement
 #line 45 "kompilator.y"
-   { CurrentSemanticValue.stat = new Declaration_Statement(ValueType.double_val, ValueStack[ValueStack.Depth-3].val, ValueStack[ValueStack.Depth-1].stat); }
+   { CurrentSemanticValue.stat = new Declaration_Statement(TypeOfValue.double_val, ValueStack[ValueStack.Depth-3].val, ValueStack[ValueStack.Depth-1].stat); }
 #line default
         break;
       case 10: // prestatement -> statement
@@ -626,17 +625,18 @@ public Parser(Scanner scanner) : base(scanner) { }
         UnaryMinus
     }
 
-    public enum ValueType
+    public enum TypeOfValue
     {
         bool_val,
         int_val,
         double_val,
         string_val,
         identificator,
-        wrong_val
+        wrong_val,
+		assignment
     }
 
-       public abstract class Statement
+   public abstract class Statement
     {
         public StatementType Type;
         public abstract bool Check();
@@ -678,12 +678,18 @@ public Parser(Scanner scanner) : base(scanner) { }
 
         public override bool Check()
         {
-            if (_ex.GetValueType() == ValueType.bool_val && _st.Check() && (_else_st == null || _else_st.Check()))
+            if(_ex.GetValueType() != TypeOfValue.bool_val)
+            {
+                Console.WriteLine("Error in expression (If_Statement)");
+                Compiler.typeErrors++;
+                return false;
+            }
+
+            if (_ex.GetValueType() == TypeOfValue.bool_val && _st.Check() && (_else_st == null || _else_st.Check()))
             {
                 return true;
             }
 
-            Console.WriteLine("Error in expression");
             return false;
         }
     }
@@ -702,12 +708,18 @@ public Parser(Scanner scanner) : base(scanner) { }
 
         public override bool Check()
         {
-            if (_ex.GetValueType() == ValueType.bool_val && _st.Check())
+            if (_ex.GetValueType() != TypeOfValue.bool_val)
+            {
+                Console.WriteLine("Error in expression (While_Statement)");
+                Compiler.typeErrors++;
+                return false;
+            }
+
+            if (_ex.GetValueType() == TypeOfValue.bool_val && _st.Check())
             {
                 return true;
             }
 
-            Console.WriteLine("Error in expression");
             return false;
         }
     }
@@ -715,22 +727,32 @@ public Parser(Scanner scanner) : base(scanner) { }
     public class Declaration_Statement : Statement
     {
         public Statement _st;
-        public ValueType _type;
+        public TypeOfValue _type;
         public string _val_name;
-        public Declaration_Statement(ValueType type, string val_name)
+        public Declaration_Statement(TypeOfValue type, string val_name)
         {
             _type = type;
             _val_name = val_name;
             _st = null;
             Type = StatementType.Declaration;
+            Compiler.identificators.Add(val_name);
+            if (!Compiler.identificatorValueType.ContainsKey(val_name))
+            {
+                Compiler.identificatorValueType.Add(val_name, type);
+            }
         }
 
-        public Declaration_Statement(ValueType type, string val_name, Statement st)
+        public Declaration_Statement(TypeOfValue type, string val_name, Statement st)
         {
             _type = type;
             _val_name = val_name;
             _st = st;
             Type = StatementType.Declaration;
+            Compiler.identificators.Add(val_name);
+            if (!Compiler.identificatorValueType.ContainsKey(val_name))
+            {
+                Compiler.identificatorValueType.Add(val_name, type);
+            }
         }
 
         public override bool Check()
@@ -738,12 +760,23 @@ public Parser(Scanner scanner) : base(scanner) { }
             if(Compiler.languageKeyWords.Contains(_val_name)) //TODO: check if not "kwy" word
             {
                 Console.WriteLine("Using 'language key word'.");
+                Compiler.typeErrors++;
                 return false;
             }
 
-            if (Compiler.identificators.Where(x => x == _val_name).ToArray().Length > 1)
+            int amount = 0;
+            for(int i=0;i< Compiler.identificators.Count;i++)
+            {
+                if(Compiler.identificators[i] == _val_name)
+                {
+                    amount++;
+                }
+            }
+
+            if (amount > 1)
             {
                 Console.WriteLine("Such declaration already exists.");
+                Compiler.typeErrors++;
                 return false;
             }
 
@@ -752,7 +785,6 @@ public Parser(Scanner scanner) : base(scanner) { }
                 return true;
             }
 
-            Console.WriteLine("Error in declaration statement.");
             return false;
         }
     }
@@ -809,17 +841,23 @@ public Parser(Scanner scanner) : base(scanner) { }
 
         public override bool Check()
         {
+            if(_string == null && _ex.GetValueType() == TypeOfValue.wrong_val || _ex.GetValueType() == TypeOfValue.assignment)
+            {
+                Console.WriteLine("Wrong type in write expression");
+                Compiler.typeErrors++;
+                return false;
+            }
+
             if (_string != null && (_st == null || _st.Check()))
             {
                 return true;
             }
 
-            if (_string == null && _ex.GetValueType() != ValueType.wrong_val  && (_st == null || _st.Check()) && _string != null)
+            if (_string == null && (_st == null || _st.Check()) && _string != null)
             {
                 return true;
             }
 
-            Console.WriteLine("Error in write statement");
             return false;
         }
     }
@@ -843,12 +881,17 @@ public Parser(Scanner scanner) : base(scanner) { }
 
         public override bool Check()
         {
-            if (Compiler.identificatorValueType.ContainsKey(_ident._identificator) && (_st == null || _st.Check()))
+            if(!Compiler.identificatorValueType.ContainsKey(_ident._identificator))
+            {
+                Console.WriteLine("Trying to read into uninitialized variable");
+                Compiler.typeErrors++;
+                return false;
+            }
+            else if(_st == null || _st.Check())
             {
                 return true;
             }
 
-            Console.WriteLine("Trying to read into uninitialized variable");
             return false;
         }
     }
@@ -873,20 +916,22 @@ public Parser(Scanner scanner) : base(scanner) { }
 
         public override bool Check()
         {
-            if (_ex.GetValueType() == ValueType.bool_val && (_st == null || _st.Check()))
+            if (_ex.GetValueType() != TypeOfValue.wrong_val && (_st == null || _st.Check()))
             {
                 return true;
             }
 
-            Console.WriteLine("Error in expression");
+            //Console.WriteLine("Error in expression (Expression_Statement)");
+            //Console.WriteLine(_ex.Type.ToString());
+            //Console.WriteLine(_ex.GetValueType().ToString());
             return false;
         }
     }
 
     public abstract class Expression
     {
-        public ValueType Type;
-        public abstract ValueType GetValueType();
+        public TypeOfValue Type;
+        public abstract TypeOfValue GetValueType();
     }
 
 
@@ -903,76 +948,78 @@ public Parser(Scanner scanner) : base(scanner) { }
             _type = type;
         }
 
-        public override ValueType GetValueType()
+        public override TypeOfValue GetValueType()
         {
             if (_type == OperationType.Assign)
             {
-                ValueType valR = _exR.GetValueType();
-                if (_exL.Type == ValueType.identificator)
+                TypeOfValue valL = _exL.GetValueType();
+                TypeOfValue valR = _exR.GetValueType();
+                if (_exL.Type == TypeOfValue.identificator)
                 {
-                    if (_exL.GetValueType() == valR)
+                    if (valL == valR || (valL == TypeOfValue.double_val && valR == TypeOfValue.double_val))
                     {
-                        return ValueType.identificator;
+                        return TypeOfValue.assignment;
                     }
                 }
             }
 
             if (_type == OperationType.BooleanLogicalOr || _type == OperationType.BooleanLogicalAnd)
             {
-                ValueType valL = _exL.GetValueType();
-                ValueType valR = _exR.GetValueType();
-                if (valL == ValueType.int_val && valR == ValueType.int_val)
+                TypeOfValue valL = _exL.GetValueType();
+                TypeOfValue valR = _exR.GetValueType();
+                if (valL == TypeOfValue.int_val && valR == TypeOfValue.int_val)
                 {
-                    return ValueType.int_val;
+                    return TypeOfValue.int_val;
                 }
             }
 
             if (_type == OperationType.Plus || _type == OperationType.Minus || _type == OperationType.Multiplication || _type == OperationType.Divide)
             {
-                ValueType valL = _exL.GetValueType();
-                ValueType valR = _exR.GetValueType();
-                if (valL == ValueType.int_val && valR == ValueType.int_val)
+                TypeOfValue valL = _exL.GetValueType();
+                TypeOfValue valR = _exR.GetValueType();
+                if (valL == TypeOfValue.int_val && valR == TypeOfValue.int_val)
                 {
-                    return ValueType.int_val;
+                    return TypeOfValue.int_val;
                 }
-                else if((valL == ValueType.int_val && valR == ValueType.double_val) || (valL == ValueType.double_val && valR == ValueType.int_val) || (valL == ValueType.double_val && valR == ValueType.double_val))
+                else if((valL == TypeOfValue.int_val && valR == TypeOfValue.double_val) || (valL == TypeOfValue.double_val && valR == TypeOfValue.int_val) || (valL == TypeOfValue.double_val && valR == TypeOfValue.double_val))
                 {
-                    return ValueType.double_val;
+                    return TypeOfValue.double_val;
                 }
             }
 
             if (_type == OperationType.Equal || _type == OperationType.Inequal || _type == OperationType.GreaterThan || _type == OperationType.GreaterOrEqual || _type == OperationType.LessThan || _type == OperationType.LessOrEqual)
             {
-                ValueType valL = _exL.GetValueType();
-                ValueType valR = _exR.GetValueType();
-                if ((valL == ValueType.int_val || valL == ValueType.double_val) && (valR == ValueType.int_val || valR == ValueType.double_val))
+                TypeOfValue valL = _exL.GetValueType();
+                TypeOfValue valR = _exR.GetValueType();
+                if ((valL == TypeOfValue.int_val || valL == TypeOfValue.double_val) && (valR == TypeOfValue.int_val || valR == TypeOfValue.double_val))
                 {
-                    return ValueType.bool_val;
+                    return TypeOfValue.bool_val;
                 }
             }
 
             if (_type == OperationType.Equal || _type == OperationType.Inequal)
             {
-                ValueType valL = _exL.GetValueType();
-                ValueType valR = _exR.GetValueType();
-                if(valL == ValueType.bool_val && valR == ValueType.bool_val)
+                TypeOfValue valL = _exL.GetValueType();
+                TypeOfValue valR = _exR.GetValueType();
+                if(valL == TypeOfValue.bool_val && valR == TypeOfValue.bool_val)
                 {
-                    return ValueType.bool_val;
+                    return TypeOfValue.bool_val;
                 }
             }
 
             if (_type == OperationType.ConditionalOr || _type == OperationType.ConditionalAnd)
             {
-                ValueType valL = _exL.GetValueType();
-                ValueType valR = _exR.GetValueType();
-                if (valL == ValueType.bool_val && valR == ValueType.bool_val)
+                TypeOfValue valL = _exL.GetValueType();
+                TypeOfValue valR = _exR.GetValueType();
+                if (valL == TypeOfValue.bool_val && valR == TypeOfValue.bool_val)
                 {
-                    return ValueType.bool_val;
+                    return TypeOfValue.bool_val;
                 }
             }
 
             Console.WriteLine("Wrong type in operation expression" + _type.ToString());
-            return ValueType.wrong_val;
+            Compiler.typeErrors++;
+            return TypeOfValue.wrong_val;
         }
     }
 
@@ -987,12 +1034,12 @@ public Parser(Scanner scanner) : base(scanner) { }
             _exR = exR;
         }
 
-        public override ValueType GetValueType()
+        public override TypeOfValue GetValueType()
         {
             if (_type == OperationType.UnaryMinus)
             {
-                ValueType val = _exR.GetValueType();
-                if (val == ValueType.int_val || val == ValueType.double_val)
+                TypeOfValue val = _exR.GetValueType();
+                if (val == TypeOfValue.int_val || val == TypeOfValue.double_val)
                 {
                     return val;
                 }
@@ -1000,8 +1047,8 @@ public Parser(Scanner scanner) : base(scanner) { }
 
             if (_type == OperationType.BitwiseComplement)
             {
-                ValueType val = _exR.GetValueType();
-                if (val == ValueType.int_val)
+                TypeOfValue val = _exR.GetValueType();
+                if (val == TypeOfValue.int_val)
                 {
                     return val;
                 }
@@ -1009,8 +1056,8 @@ public Parser(Scanner scanner) : base(scanner) { }
 
             if (_type == OperationType.LogicalNegation)
             {
-                ValueType val = _exR.GetValueType();
-                if (val == ValueType.bool_val)
+                TypeOfValue val = _exR.GetValueType();
+                if (val == TypeOfValue.bool_val)
                 {
                     return val;
                 }
@@ -1018,24 +1065,25 @@ public Parser(Scanner scanner) : base(scanner) { }
 
             if (_type == OperationType.IntConversion)
             {
-                ValueType val = _exR.GetValueType();
-                if (val == ValueType.bool_val || val == ValueType.int_val || val == ValueType.double_val)
+                TypeOfValue val = _exR.GetValueType();
+                if (val == TypeOfValue.bool_val || val == TypeOfValue.int_val || val == TypeOfValue.double_val)
                 {
-                    return ValueType.int_val;
+                    return TypeOfValue.int_val;
                 }
             }
 
             if (_type == OperationType.DoubleConversion)
             {
-                ValueType val = _exR.GetValueType();
-                if (val == ValueType.bool_val || val == ValueType.int_val || val == ValueType.double_val)
+                TypeOfValue val = _exR.GetValueType();
+                if (val == TypeOfValue.bool_val || val == TypeOfValue.int_val || val == TypeOfValue.double_val)
                 {
-                    return ValueType.double_val;
+                    return TypeOfValue.double_val;
                 }
             }
 
             Console.WriteLine("Wrong type in unary expression" + _type.ToString());
-            return ValueType.wrong_val;
+            Compiler.typeErrors++;
+            return TypeOfValue.wrong_val;
         }
     }
 
@@ -1049,32 +1097,32 @@ public Parser(Scanner scanner) : base(scanner) { }
         public Value(bool val_bool)
         {
             _val_bool = val_bool;
-            Type = ValueType.bool_val;
+            Type = TypeOfValue.bool_val;
         }
 
         public Value(int val_int)
         {
             _val_int = val_int;
-            Type = ValueType.int_val;
+            Type = TypeOfValue.int_val;
         }
 
         public Value(double val_double)
         {
             _val_double = val_double;
-            Type = ValueType.double_val;
+            Type = TypeOfValue.double_val;
         }
 
         public Value(string identificator)
         {
             _identificator = identificator;
-            Type = ValueType.identificator;
+            Type = TypeOfValue.identificator;
         }
 
-        public override ValueType GetValueType()
+        public override TypeOfValue GetValueType()
         {
-            if (Type == ValueType.identificator)
+            if (Type == TypeOfValue.identificator)
             {
-                ValueType identValue;
+                TypeOfValue identValue;
                 if(Compiler.identificatorValueType.TryGetValue(_identificator, out identValue))
                 {
                     return identValue;
@@ -1082,7 +1130,8 @@ public Parser(Scanner scanner) : base(scanner) { }
                 else
                 {
                     Console.WriteLine("Using uninitialized variable");
-                    return ValueType.wrong_val;
+                    Compiler.typeErrors++;
+                    return TypeOfValue.wrong_val;
                 }
             }
             else

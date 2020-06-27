@@ -15,9 +15,10 @@ namespace MiniCompiler
         public static List<string> source;
         private static StreamWriter sw;
 
-        public static Dictionary<string, ValueType> identificatorValueType = new Dictionary<string, ValueType>();
+        public static Dictionary<string, Parser.TypeOfValue> identificatorValueType = new Dictionary<string, Parser.TypeOfValue>();
         public static List<string> identificators = new List<string>();
         public static List<string> languageKeyWords = new List<string>() { "int", "double", "bool" };
+        public static int typeErrors = 0;
 
         public static int Main(string[] args)
         {
@@ -52,6 +53,14 @@ namespace MiniCompiler
             parser.Parse();
 
             var x = Parser.program;
+            if (x != null)
+            {
+                if (x.Check())
+                {
+                    Console.WriteLine("Types OK");
+                }
+            }
+
             GenEpilog();
             sw.Close();
             source.Close();
@@ -59,7 +68,7 @@ namespace MiniCompiler
                 Console.WriteLine("  compilation successful\n");
             else
             {
-                Console.WriteLine($"\n  {errors} errors detected\n");
+                Console.WriteLine($"\n  {errors} syntax errors detected\n");
                 File.Delete(file + ".il");
             }
             return errors == 0 ? 0 : 2;
