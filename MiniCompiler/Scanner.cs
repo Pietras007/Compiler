@@ -6,9 +6,9 @@
 //
 //  GPLEX Version:  1.2.2
 //  Machine:  DESKTOP-F60JC3Q
-//  DateTime: 6/27/2020 2:23:51 PM
+//  DateTime: 6/27/2020 6:24:26 PM
 //  UserName: User
-//  GPLEX input file <kompilator.lex - 6/25/2020 11:51:11 PM>
+//  GPLEX input file <kompilator.lex - 6/27/2020 2:51:02 PM>
 //  GPLEX frame file <embedded resource>
 //
 //  Option settings: verbose, parser, minimize
@@ -165,7 +165,7 @@ namespace MiniCompiler
 
     static int[] startState = new int[] {82, 0};
 
-    static Table[] NxS = new Table[94] {
+    static Table[] NxS = new Table[95] {
 /* NxS[   0] */ new Table(0, 0, 0, null), // Shortest string ""
 /* NxS[   1] */ new Table(0, 0, -1, null), // Shortest string "\n"
 /* NxS[   2] */ new Table(0, 0, -1, null), // Shortest string "\x20"
@@ -559,10 +559,7 @@ namespace MiniCompiler
 /* NxS[  77] */ new Table(0, 0, -1, null), // Shortest string "(int)"
 /* NxS[  78] */ new Table(0, 0, -1, null), // Shortest string "(double)"
 /* NxS[  79] */ new Table(0, 0, -1, null), // Shortest string "&&"
-/* NxS[  80] */ // Shortest string "\"\""
-      new Table(10, 25, 83, new sbyte[] {-1, 83, 83, 83, 83, 83, 
-          83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 
-          83, 83, 80}),
+/* NxS[  80] */ new Table(0, 0, -1, null), // Shortest string "\"\""
 /* NxS[  81] */ new Table(0, 0, -1, null), // Shortest string "!="
 /* NxS[  82] */ // Shortest string ""
       new Table(10, 117, -1, new sbyte[] {1, -1, -1, -1, -1, -1, 
@@ -574,9 +571,12 @@ namespace MiniCompiler
           -1, 17, 18, 17, 19, 20, 21, 17, 17, 22, 17, 17, 17, 17, 17, 17, 
           23, 17, 24, 17, 25, 17, 17, 26, 17, 17, 17, 27, 28, 29, 30}),
 /* NxS[  83] */ // Shortest string "\""
-      new Table(10, 25, 83, new sbyte[] {-1, 83, 83, 83, 83, 83, 
+      new Table(10, 83, 83, new sbyte[] {-1, 83, 83, 83, 83, 83, 
           83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 
-          83, 83, 80}),
+          83, 83, 80, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 
+          83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 
+          83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 
+          83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 94}),
 /* NxS[  84] */ // Shortest string "1."
       new Table(48, 10, -1, new sbyte[] {75, 75, 75, 75, 75, 75, 
           75, 75, 75, 75}),
@@ -598,6 +598,8 @@ namespace MiniCompiler
       new Table(101, 1, -1, new sbyte[] {93}),
 /* NxS[  93] */ // Shortest string "(double"
       new Table(41, 1, -1, new sbyte[] {78}),
+/* NxS[  94] */ // Shortest string "\"\\"
+      new Table(10, 1, 83, new sbyte[] {-1}),
     };
 
 int NextState() {

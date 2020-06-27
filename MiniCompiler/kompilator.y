@@ -11,6 +11,7 @@
 	public double d_val;
 	public Statement stat; //Statement
 	public Expression expression; //Expression
+	public Value value; //Value
 	public OperationType opptype; //OperationType
 }
 
@@ -21,6 +22,7 @@
 %token <d_val> DoubleNumber
 %type <stat> prestatement statement
 %type <expression> expression A B C D E F
+%type <value> declarationstring
 %type <opptype> logical relation oppadd oppmul binary unar
 
 %%
@@ -31,20 +33,23 @@ start     : Program CurlyBracketLeft prestatement CurlyBracketRight Eof
 			{ program = new Empty_Statement(); Console.WriteLine("Tree finished"); YYABORT; }
           ;
 
-prestatement : Bool Identificator Semicolon
+prestatement : Bool declarationstring Semicolon
 			{ $$ = new Declaration_Statement(TypeOfValue.bool_val, $2); }
-		  | Bool Identificator Semicolon prestatement
+		  | Bool declarationstring Semicolon prestatement
 			{ $$ = new Declaration_Statement(TypeOfValue.bool_val, $2, $4); }
-		  | Int Identificator Semicolon
+		  | Int declarationstring Semicolon
 			{ $$ = new Declaration_Statement(TypeOfValue.int_val, $2); }
-		  | Int Identificator Semicolon prestatement
+		  | Int declarationstring Semicolon prestatement
 			{ $$ = new Declaration_Statement(TypeOfValue.int_val, $2, $4); }
-		  | Double Identificator Semicolon
+		  | Double declarationstring Semicolon
 			{ $$ = new Declaration_Statement(TypeOfValue.double_val, $2); }
-		  | Double Identificator Semicolon prestatement
+		  | Double declarationstring Semicolon prestatement
 			{ $$ = new Declaration_Statement(TypeOfValue.double_val, $2, $4); }
 		  | statement
 			{ $$ = $1; }
+		  ;
+
+declarationstring : Identificator { $$ = new Value($1, Compiler.lines); }
 		  ;
 
 statement : CurlyBracketLeft statement CurlyBracketRight
@@ -61,31 +66,30 @@ statement : CurlyBracketLeft statement CurlyBracketRight
 			{ $$ = new Expression_Statement($1); }
 		  |	expression Semicolon statement
 			{ $$ = new Expression_Statement($1, $3); }
-
+		  | Write String Semicolon
+			{ $$ = new Write_Statement($2); }
+		  | Write String Semicolon statement
+			{ $$ = new Write_Statement($2, $4); }
 		  | Write expression Semicolon
 			{ $$ = new Write_Statement($2); }
 		  | Write expression Semicolon statement
 			{ $$ = new Write_Statement($2, $4); }
-		  | Write String Semicolon
-			{ $$ = new Write_Statement(new Value($2)); }
-		  | Write String Semicolon statement
-			{ $$ = new Write_Statement(new Value($2), $4); }
 		  | Read Identificator Semicolon
-			{ $$ = new Read_Statement(new Value($2)); }
+			{ $$ = new Read_Statement(new Value($2, Compiler.lines)); }
 		  | Read Identificator Semicolon statement
-			{ $$ = new Read_Statement(new Value($2), $4); }
+			{ $$ = new Read_Statement(new Value($2, Compiler.lines), $4); }
 		  | CurlyBracketLeft CurlyBracketRight
 			{ $$ = new Empty_Statement(); }
           ;
 
 expression : Identificator Assign A
-			{ $$ = new Operand(new Value($1), OperationType.Assign, $3); }
+			{ $$ = new Operand(new Value($1, Compiler.lines), OperationType.Assign, $3, Compiler.lines); }
           | A
 			{ $$ = $1; }
           ;
 
 A         : A logical B
-			{ $$ = new Operand($1, $2 ,$3); }
+			{ $$ = new Operand($1, $2 ,$3, Compiler.lines); }
           | B
 			{ $$ = $1; }
           ;
@@ -97,7 +101,7 @@ logical   : ConditionalOr
           ;
 
 B		  : B relation C
-			{ $$ = new Operand($1, $2 ,$3); }
+			{ $$ = new Operand($1, $2 ,$3, Compiler.lines); }
           | C
 			{ $$ = $1; }
           ;
@@ -117,7 +121,7 @@ relation  : Equal
           ;
 		  
 C		  : C oppadd D
-			{ $$ = new Operand($1, $2 ,$3); }
+			{ $$ = new Operand($1, $2 ,$3, Compiler.lines); }
           | D
 			{ $$ = $1; }
           ;
@@ -129,7 +133,7 @@ oppadd    : Plus
           ;
 		  
 D		  : D oppmul E
-			{ $$ = new Operand($1, $2 ,$3); }
+			{ $$ = new Operand($1, $2 ,$3, Compiler.lines); }
           | E
 			{ $$ = $1; }
           ;
@@ -141,7 +145,7 @@ oppmul    : Multiplication
           ;
 		  
 E		  : E binary F
-			{ $$ = new Operand($1, $2 ,$3); }
+			{ $$ = new Operand($1, $2 ,$3, Compiler.lines); }
           | F
 			{ $$ = $1; }
           ;
@@ -153,15 +157,15 @@ binary    : BooleanLogicalOr
           ;
 		  
 F		  : unar F
-			{ $$ = new UnaryOperand($1, $2); }
+			{ $$ = new UnaryOperand($1, $2, Compiler.lines); }
 		  | IntNumber
-			{ $$ = new Value($1); }
+			{ $$ = new Value($1, Compiler.lines); }
 		  |	DoubleNumber
-			{ $$ = new Value($1); }
+			{ $$ = new Value($1, Compiler.lines); }
 		  | BooleanNumber
-			{ $$ = new Value($1); }
+			{ $$ = new Value($1, Compiler.lines); }
           | Identificator
-			{ $$ = new Value($1);}
+			{ $$ = new Value($1, Compiler.lines);}
 		  | ParenthesisLeft expression ParenthesisRight
 			{ $$ = $2; }
 		  | error Semicolon

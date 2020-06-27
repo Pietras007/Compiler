@@ -99,8 +99,10 @@ namespace MiniCompiler
         {
             if (_ex.GetValueType() != TypeOfValue.bool_val)
             {
-                Console.WriteLine("Error in expression (If_Statement)");
+                Console.WriteLine("Error in expression (If_Statement) in line: " + _ex.Lineno);
                 Compiler.typeErrors++;
+                _st.Check();
+                if (_else_st != null) _else_st.Check();
                 return false;
             }
 
@@ -129,8 +131,9 @@ namespace MiniCompiler
         {
             if (_ex.GetValueType() != TypeOfValue.bool_val)
             {
-                Console.WriteLine("Error in expression (While_Statement)");
+                Console.WriteLine("Error in expression (While_Statement) in line: " + _ex.Lineno);
                 Compiler.typeErrors++;
+                _st.Check();
                 return false;
             }
 
@@ -147,46 +150,49 @@ namespace MiniCompiler
     {
         public Statement _st;
         public TypeOfValue _type;
-        public string _val_name;
-        public Declaration_Statement(TypeOfValue type, string val_name)
+        public Value _val_name;
+        public Declaration_Statement(TypeOfValue type, Value val_name)
         {
             _type = type;
             _val_name = val_name;
             _st = null;
             Type = StatementType.Declaration;
-            Compiler.identificators.Add(val_name);
-            if (!Compiler.identificatorValueType.ContainsKey(val_name))
+            Compiler.identificators.Add(_val_name._identificator);
+            Compiler.identificatorLines.Add((_val_name._identificator, _val_name.Lineno));
+            if (!Compiler.identificatorValueType.ContainsKey(_val_name._identificator))
             {
-                Compiler.identificatorValueType.Add(val_name, type);
+                Compiler.identificatorValueType.Add(_val_name._identificator, type);
             }
         }
 
-        public Declaration_Statement(TypeOfValue type, string val_name, Statement st)
+        public Declaration_Statement(TypeOfValue type, Value val_name, Statement st)
         {
             _type = type;
             _val_name = val_name;
             _st = st;
             Type = StatementType.Declaration;
-            Compiler.identificators.Add(val_name);
-            if (!Compiler.identificatorValueType.ContainsKey(val_name))
+            Compiler.identificators.Add(_val_name._identificator);
+            Compiler.identificatorLines.Add((_val_name._identificator, _val_name.Lineno));
+            if (!Compiler.identificatorValueType.ContainsKey(_val_name._identificator))
             {
-                Compiler.identificatorValueType.Add(val_name, type);
+                Compiler.identificatorValueType.Add(_val_name._identificator, type);
             }
         }
 
         public override bool Check()
         {
-            if (Compiler.languageKeyWords.Contains(_val_name))
+            if (Compiler.languageKeyWords.Contains(_val_name._identificator))
             {
-                Console.WriteLine("Using 'language key word'.");
+                Console.WriteLine("Using 'language key word' in line: " + _val_name.Lineno);
                 Compiler.typeErrors++;
+                if (_st != null) _st.Check();
                 return false;
             }
 
             int amount = 0;
             for (int i = 0; i < Compiler.identificators.Count; i++)
             {
-                if (Compiler.identificators[i] == _val_name)
+                if (Compiler.identificators[i] == _val_name._identificator)
                 {
                     amount++;
                 }
@@ -194,8 +200,21 @@ namespace MiniCompiler
 
             if (amount > 1)
             {
-                Console.WriteLine("Such declaration already exists.");
+                var _listelements = Compiler.identificatorLines.Where(x => x.Item1 == _val_name._identificator).ToList();
+                var sortedlist = _listelements.OrderByDescending(x => x.Item2).ToArray();
+                if (_val_name.Lineno == sortedlist[0].Item2)
+                {
+                    for(int i= sortedlist.Length - 2; i>=0;i--)
+                    {
+                        Console.WriteLine("Such declaration already exists. Error in line: " + sortedlist[i].Item2);
+                    }
+                }
+                
                 Compiler.typeErrors++;
+                if (_st != null)
+                {
+                    _st.Check();
+                }
                 return false;
             }
 
@@ -260,11 +279,16 @@ namespace MiniCompiler
 
         public override bool Check()
         {
-            if (_string == null && _ex.GetValueType() == TypeOfValue.wrong_val || _ex.GetValueType() == TypeOfValue.assignment)
+            if (_string == null)
             {
-                Console.WriteLine("Wrong type in write expression");
-                Compiler.typeErrors++;
-                return false;
+                var valType = _ex.GetValueType();
+                if (valType == TypeOfValue.wrong_val || valType == TypeOfValue.assignment)
+                { 
+                    Console.WriteLine("Wrong type in write expression in line: " + _ex.Lineno);
+                    Compiler.typeErrors++;
+                    if (_st != null) _st.Check();
+                    return false;
+                }
             }
 
             if (_string != null && (_st == null || _st.Check()))
@@ -272,7 +296,7 @@ namespace MiniCompiler
                 return true;
             }
 
-            if (_string == null && (_st == null || _st.Check()) && _string != null)
+            if (_string == null && (_st == null || _st.Check()))
             {
                 return true;
             }
@@ -302,8 +326,9 @@ namespace MiniCompiler
         {
             if (!Compiler.identificatorValueType.ContainsKey(_ident._identificator))
             {
-                Console.WriteLine("Trying to read into uninitialized variable");
+                Console.WriteLine("Trying to read into uninitialized variable in line: " + _ident.Lineno);
                 Compiler.typeErrors++;
+                if (_st != null) _st.Check();
                 return false;
             }
             else if (_st == null || _st.Check())
@@ -335,14 +360,14 @@ namespace MiniCompiler
 
         public override bool Check()
         {
-            if (_ex.GetValueType() != TypeOfValue.wrong_val && (_st == null || _st.Check()))
+            var valType = _ex.GetValueType();
+            if (valType != TypeOfValue.wrong_val)
             {
+                if (_st != null) _st.Check();
                 return true;
             }
 
-            //Console.WriteLine("Error in expression (Expression_Statement)");
-            //Console.WriteLine(_ex.Type.ToString());
-            //Console.WriteLine(_ex.GetValueType().ToString());
+            if (_st != null) _st.Check();
             return false;
         }
     }
@@ -351,6 +376,7 @@ namespace MiniCompiler
     {
         public TypeOfValue Type;
         public abstract TypeOfValue GetValueType();
+        public int Lineno;
     }
 
 
@@ -360,11 +386,12 @@ namespace MiniCompiler
         public Expression _exL;
         public Expression _exR;
 
-        public Operand(Expression exL, OperationType type, Expression exR)
+        public Operand(Expression exL, OperationType type, Expression exR, int lineno)
         {
             _exL = exL;
             _exR = exR;
             _type = type;
+            Lineno = lineno;
         }
 
         public override TypeOfValue GetValueType()
@@ -436,7 +463,7 @@ namespace MiniCompiler
                 }
             }
 
-            Console.WriteLine("Wrong type in operation expression" + _type.ToString());
+            Console.WriteLine("Wrong type in operation expression " + _type.ToString() + " in line: " + Lineno);
             Compiler.typeErrors++;
             return TypeOfValue.wrong_val;
         }
@@ -447,10 +474,11 @@ namespace MiniCompiler
         public OperationType _type;
         public Expression _exR;
 
-        public UnaryOperand(OperationType type, Expression exR)
+        public UnaryOperand(OperationType type, Expression exR, int lineno)
         {
             _type = type;
             _exR = exR;
+            Lineno = lineno;
         }
 
         public override TypeOfValue GetValueType()
@@ -500,7 +528,7 @@ namespace MiniCompiler
                 }
             }
 
-            Console.WriteLine("Wrong type in unary expression" + _type.ToString());
+            Console.WriteLine("Wrong type in unary expression" + _type.ToString() + "in line: " + Lineno);
             Compiler.typeErrors++;
             return TypeOfValue.wrong_val;
         }
@@ -513,28 +541,32 @@ namespace MiniCompiler
         public double _val_double;
         public string _identificator;
 
-        public Value(bool val_bool)
+        public Value(bool val_bool, int lineno)
         {
             _val_bool = val_bool;
             Type = TypeOfValue.bool_val;
+            Lineno = lineno;
         }
 
-        public Value(int val_int)
+        public Value(int val_int, int lineno)
         {
             _val_int = val_int;
             Type = TypeOfValue.int_val;
+            Lineno = lineno;
         }
 
-        public Value(double val_double)
+        public Value(double val_double, int lineno)
         {
             _val_double = val_double;
             Type = TypeOfValue.double_val;
+            Lineno = lineno;
         }
 
-        public Value(string identificator)
+        public Value(string identificator, int lineno)
         {
             _identificator = identificator;
             Type = TypeOfValue.identificator;
+            Lineno = lineno;
         }
 
         public override TypeOfValue GetValueType()
@@ -548,7 +580,7 @@ namespace MiniCompiler
                 }
                 else
                 {
-                    Console.WriteLine("Using uninitialized variable");
+                    Console.WriteLine("Using uninitialized variable in line: " + Lineno);
                     Compiler.typeErrors++;
                     return TypeOfValue.wrong_val;
                 }
@@ -570,6 +602,7 @@ namespace MiniCompiler
 
         public static Dictionary<string, TypeOfValue> identificatorValueType = new Dictionary<string, TypeOfValue>();
         public static List<string> identificators = new List<string>();
+        public static List<(string, int)> identificatorLines = new List<(string, int)>();
         public static List<string> languageKeyWords = new List<string>() { "int", "double", "bool" };
         public static int typeErrors = 0;
 
