@@ -59,6 +59,7 @@ namespace MiniCompiler
     {
         public StatementType Type;
         public abstract bool Check();
+        public abstract void GenCode();
     }
 
     public class Empty_Statement : Statement
@@ -66,6 +67,11 @@ namespace MiniCompiler
         public Empty_Statement()
         {
             Type = StatementType.EmptyStatement;
+        }
+
+        public override void GenCode()
+        {
+            Compiler.EmitCode("nop");
         }
 
         public override bool Check()
@@ -93,6 +99,12 @@ namespace MiniCompiler
             _st = st;
             _else_st = else_st;
             Type = StatementType.IfElseStatement;
+        }
+
+        public override void GenCode()
+        {
+            Console.WriteLine("");
+
         }
 
         public override bool Check()
@@ -125,6 +137,11 @@ namespace MiniCompiler
             _ex = ex;
             _st = st;
             Type = StatementType.WhileStatement;
+        }
+
+        public override void GenCode()
+        {
+            Console.WriteLine("");
         }
 
         public override bool Check()
@@ -176,6 +193,27 @@ namespace MiniCompiler
             if (!Compiler.identificatorValueType.ContainsKey(_val_name._identificator))
             {
                 Compiler.identificatorValueType.Add(_val_name._identificator, type);
+            }
+        }
+
+        public override void GenCode()
+        {
+            if(_val_name.GetValueType() == TypeOfValue.bool_val)
+            {
+                Compiler.EmitCode(".locals init (float64 _" + _val_name._identificator + "_)");
+            }
+            else if (_val_name.GetValueType() == TypeOfValue.int_val)
+            {
+                Compiler.EmitCode(".locals init (int32 _" + _val_name._identificator + "_)");
+            }
+            else if (_val_name.GetValueType() == TypeOfValue.double_val)
+            {
+                Compiler.EmitCode(".locals init (bool _" + _val_name._identificator + "_)");
+            }
+
+            if (_st != null)
+            {
+                _st.GenCode();
             }
         }
 
@@ -234,6 +272,11 @@ namespace MiniCompiler
             Type = StatementType.ReturnStatement;
         }
 
+        public override void GenCode()
+        {
+            Console.WriteLine("ret");
+        }
+
         public override bool Check()
         {
             return true;
@@ -275,6 +318,27 @@ namespace MiniCompiler
             _st = st;
             _ex = null;
             Type = StatementType.WriteStatement;
+        }
+
+        public override void GenCode()
+        {
+            if (_ex != null)
+            {
+                if (_ex is Value)
+                {
+                    var EXP = (Value)_ex;
+                    if (EXP.Type == TypeOfValue.identificator)
+                    {
+                        Compiler.EmitCode("ldloc _" + EXP._identificator + "_");
+                        Compiler.EmitCode("call void [mscorlib]System.Console::WriteLine(int32)");
+                        Compiler.EmitCode("nop");
+                    }
+                }
+            }
+            else
+            {
+
+            }
         }
 
         public override bool Check()
@@ -322,6 +386,11 @@ namespace MiniCompiler
             Type = StatementType.ReadStatement;
         }
 
+        public override void GenCode()
+        {
+            Console.WriteLine("");
+        }
+
         public override bool Check()
         {
             if (!Compiler.identificatorValueType.ContainsKey(_ident._identificator))
@@ -358,6 +427,15 @@ namespace MiniCompiler
             Type = StatementType.Expression;
         }
 
+        public override void GenCode()
+        {
+            _ex.GenCode();
+            if(_st!= null)
+            {
+                _st.GenCode();
+            }
+        }
+
         public override bool Check()
         {
             var valType = _ex.GetValueType();
@@ -377,6 +455,7 @@ namespace MiniCompiler
         public TypeOfValue Type;
         public abstract TypeOfValue GetValueType();
         public int Lineno;
+        public abstract void GenCode();
     }
 
 
@@ -392,6 +471,35 @@ namespace MiniCompiler
             _exR = exR;
             _type = type;
             Lineno = lineno;
+        }
+
+        public override void GenCode()
+        {
+            if (_type == OperationType.Assign)
+            {
+                Compiler.EmitCode("nop");
+                var EXL = (Value)_exL;
+
+                if (_exR is Value)
+                {
+                    var EXR = (Value)_exR;
+                    if (EXR.Type == TypeOfValue.identificator)
+                    {
+
+                    }
+                    else
+                    {
+                        if (_exL.GetValueType() == TypeOfValue.bool_val) Compiler.EmitCode("nop");
+                        if (_exL.GetValueType() == TypeOfValue.int_val) Compiler.EmitCode("ldc.i4 " + EXR._val_int);
+                        if (_exL.GetValueType() == TypeOfValue.double_val) Compiler.EmitCode("nop");
+                    }
+
+
+                }
+
+
+                Compiler.EmitCode("stloc _" + EXL._identificator + "_");
+            }
         }
 
         public override TypeOfValue GetValueType()
@@ -479,6 +587,11 @@ namespace MiniCompiler
             _type = type;
             _exR = exR;
             Lineno = lineno;
+        }
+
+        public override void GenCode()
+        {
+            Console.WriteLine("");
         }
 
         public override TypeOfValue GetValueType()
@@ -569,6 +682,11 @@ namespace MiniCompiler
             Lineno = lineno;
         }
 
+        public override void GenCode()
+        {
+            Console.WriteLine("");
+        }
+
         public override TypeOfValue GetValueType()
         {
             if (Type == TypeOfValue.identificator)
@@ -645,6 +763,8 @@ namespace MiniCompiler
                 {
                     Console.WriteLine("Types OK");
                 }
+
+                x.GenCode();
             }
 
             GenEpilog();
@@ -680,15 +800,7 @@ namespace MiniCompiler
             EmitCode(".try");
             EmitCode("{");
             EmitCode();
-
             EmitCode("// prolog");
-            EmitCode(".locals init ( float64 temp )");
-            for (char c = 'a'; c <= 'z'; ++c)
-            {
-                EmitCode($".locals init ( int32 _i{c} )");
-                EmitCode($".locals init ( float64 _r{c} )");
-            }
-            EmitCode();
         }
 
         private static void GenEpilog()

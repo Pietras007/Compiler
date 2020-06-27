@@ -56,6 +56,8 @@ statement : CurlyBracketLeft statement CurlyBracketRight
 			{ $$ = $2; }
           | If ParenthesisLeft expression ParenthesisRight statement
 			{ $$ = new If_Statement($3, $5); }
+		  | If ParenthesisLeft expression ParenthesisRight statement Else statement
+			{ $$ = new If_Statement($3, $5, $7); }
 		  |	While ParenthesisLeft expression ParenthesisRight statement
 			{ $$ = new While_Statement($3, $5); }
 		  |	Return Semicolon
