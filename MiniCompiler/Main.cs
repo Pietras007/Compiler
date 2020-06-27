@@ -15,6 +15,10 @@ namespace MiniCompiler
         public static List<string> source;
         private static StreamWriter sw;
 
+        public static Dictionary<string, ValueType> identificatorValueType = new Dictionary<string, ValueType>();
+        public static List<string> identificators = new List<string>();
+        public static List<string> languageKeyWords = new List<string>() { "int", "double", "bool" };
+
         public static int Main(string[] args)
         {
             string file;
