@@ -726,14 +726,36 @@ namespace MiniCompiler
             else if (_type == OperationType.ConditionalOr)
             {
                 _exL.GenCode();
+                Compiler.EmitCode("ldc.i4.1");
+                Compiler.EmitCode("and");
+                string orOk = "E" + Compiler.Enumber;
+                Compiler.Enumber++;
+                Compiler.EmitCode("brtrue.s " + orOk);
+                Compiler.EmitCode("ldc.i4.0");
                 _exR.GenCode();
                 Compiler.EmitCode("or");
+                string orAll = "E" + Compiler.Enumber;
+                Compiler.Enumber++;
+                Compiler.EmitCode("br.s " + orAll);
+                Compiler.EmitCode(orOk + ": ldc.i4.1");
+                Compiler.EmitCode(orAll + ": nop");
             }
             else if (_type == OperationType.ConditionalAnd)
             {
                 _exL.GenCode();
+                Compiler.EmitCode("ldc.i4.1");
+                Compiler.EmitCode("and");
+                string endwrong = "E" + Compiler.Enumber;
+                Compiler.Enumber++;
+                Compiler.EmitCode("brfalse.s " + endwrong);
+                Compiler.EmitCode("ldc.i4.1");
                 _exR.GenCode();
                 Compiler.EmitCode("and");
+                string andAll = "E" + Compiler.Enumber;
+                Compiler.Enumber++;
+                Compiler.EmitCode("br.s " + andAll);
+                Compiler.EmitCode(endwrong + ": ldc.i4.0");
+                Compiler.EmitCode(andAll + ": nop");
             }
         }
 
