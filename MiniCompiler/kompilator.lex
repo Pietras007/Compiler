@@ -48,7 +48,7 @@ Comment			"//".*
 " "       		{ }
 <<EOF>>       	{ return (int)Tokens.Eof; }
 {IntNumber}		{ yylval.i_val=Int32.Parse(yytext); return (int)Tokens.IntNumber; }
-{DoubleNumber}	{ yylval.d_val=Double.Parse(yytext); return (int)Tokens.DoubleNumber; }
+{DoubleNumber}	{ yylval.d_val=Double.Parse(yytext, System.Globalization.CultureInfo.InvariantCulture); return (int)Tokens.DoubleNumber; }
 {BooleanNumber}	{ yylval.b_val=Boolean.Parse(yytext); return (int)Tokens.BooleanNumber; }
 {Identificator}	{ yylval.val=yytext; return (int)Tokens.Identificator; }
 {String}		{ yylval.val=yytext; return (int)Tokens.String; }
