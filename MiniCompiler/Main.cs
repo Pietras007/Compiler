@@ -103,9 +103,35 @@ namespace MiniCompiler
 
         public override void GenCode()
         {
-            //if(_else_st)
-            Console.WriteLine("");
+            if(_else_st == null)
+            {
+                _ex.GenCode();
+                string label = "E" + Compiler.Enumber;
+                Compiler.Enumber++;
+                Compiler.EmitCode("brfalse.s " + label);
+                Compiler.EmitCode("nop");
+                _st.GenCode();
+                Compiler.EmitCode("nop");
+                Compiler.EmitCode(label + ": nop");
+            }
+            else
+            {
+                _ex.GenCode();
+                string labelelse = "E" + Compiler.Enumber;
+                Compiler.Enumber++;
+                string label = "E" + Compiler.Enumber;
+                Compiler.Enumber++;
 
+                Compiler.EmitCode("brfalse.s " + labelelse);
+                Compiler.EmitCode("nop");
+                _st.GenCode();
+                Compiler.EmitCode("nop");
+                Compiler.EmitCode("br.s " + label);
+                Compiler.EmitCode(labelelse + ": nop");
+                _else_st.GenCode();
+                Compiler.EmitCode("nop");
+                Compiler.EmitCode(label + ": nop");
+            }
         }
 
         public override bool Check()
@@ -142,7 +168,17 @@ namespace MiniCompiler
 
         public override void GenCode()
         {
-            Console.WriteLine("");
+            string whilestart = "E" + Compiler.Enumber;
+            Compiler.Enumber++;
+            string whilecheck = "E" + Compiler.Enumber;
+            Compiler.Enumber++;
+            Compiler.EmitCode("br.s  " + whilecheck.ToString());
+            Compiler.EmitCode(whilestart.ToString() +": nop");
+            _st.GenCode();
+            Compiler.EmitCode("nop");
+            Compiler.EmitCode(whilecheck.ToString() + ": nop");
+            _ex.GenCode();
+            Compiler.EmitCode("brtrue.s " + whilestart.ToString());
         }
 
         public override bool Check()
@@ -345,7 +381,7 @@ namespace MiniCompiler
             }
             else
             {
-                Compiler.EmitCode(@"ldstr """ + _string + @"""");
+                Compiler.EmitCode("ldstr " + _string);
                 Compiler.EmitCode("call void [mscorlib]System.Console::WriteLine(string)");
                 Compiler.EmitCode("nop");
                 if (_st != null) _st.GenCode();
@@ -1009,6 +1045,8 @@ namespace MiniCompiler
         public static List<(string, int)> identificatorLines = new List<(string, int)>();
         public static List<string> languageKeyWords = new List<string>() { "int", "double", "bool" };
         public static int typeErrors = 0;
+
+        public static int Enumber = 0;
 
         public static int Main(string[] args)
         {
