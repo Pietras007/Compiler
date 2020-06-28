@@ -334,7 +334,7 @@ namespace MiniCompiler
 
         public override void GenCode()
         {
-            Console.WriteLine("ret");
+            Compiler.EmitCode("br.s Efromreturn");
         }
 
         public override bool Check()
@@ -1093,6 +1093,7 @@ namespace MiniCompiler
 
         private static void GenEpilog()
         {
+            EmitCode("Efromreturn: nop");
             EmitCode("leave EndMain");
             EmitCode("}");
             EmitCode("catch [mscorlib]System.Exception");
