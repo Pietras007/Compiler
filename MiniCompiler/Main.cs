@@ -241,19 +241,6 @@ namespace MiniCompiler
         public Statement _st;
         public TypeOfValue _type;
         public Value _val_name;
-        public Declaration_Statement(TypeOfValue type, Value val_name)
-        {
-            _type = type;
-            _val_name = val_name;
-            _st = null;
-            Type = StatementType.Declaration;
-            Compiler.identificators.Add(_val_name._identificator);
-            Compiler.identificatorLines.Add((_val_name._identificator, _val_name.Lineno));
-            if (!Compiler.identificatorValueType.ContainsKey(_val_name._identificator))
-            {
-                Compiler.identificatorValueType.Add(_val_name._identificator, type);
-            }
-        }
 
         public Declaration_Statement(TypeOfValue type, Value val_name, Statement st)
         {
@@ -359,20 +346,10 @@ namespace MiniCompiler
     public class Write_Statement : Statement
     {
         public Expression _ex;
-        public Statement _st;
         public string _string;
         public Write_Statement(Expression ex)
         {
             _ex = ex;
-            _st = null;
-            _string = null;
-            Type = StatementType.WriteStatement;
-        }
-
-        public Write_Statement(Expression ex, Statement st)
-        {
-            _ex = ex;
-            _st = st;
             _string = null;
             Type = StatementType.WriteStatement;
         }
@@ -380,15 +357,6 @@ namespace MiniCompiler
         public Write_Statement(string _str)
         {
             _string = _str;
-            _st = null;
-            _ex = null;
-            Type = StatementType.WriteStatement;
-        }
-
-        public Write_Statement(string _str, Statement st)
-        {
-            _string = _str;
-            _st = st;
             _ex = null;
             Type = StatementType.WriteStatement;
         }
@@ -413,14 +381,12 @@ namespace MiniCompiler
                     Compiler.EmitCode("call void [mscorlib]System.Console::WriteLine(float64)");
                     Compiler.EmitCode("nop");
                 }
-                if (_st != null) _st.GenCode();
             }
             else
             {
                 Compiler.EmitCode("ldstr " + _string);
                 Compiler.EmitCode("call void [mscorlib]System.Console::WriteLine(string)");
                 Compiler.EmitCode("nop");
-                if (_st != null) _st.GenCode();
             }
         }
 
@@ -433,39 +399,20 @@ namespace MiniCompiler
                 { 
                     Console.WriteLine("Wrong type in write expression in line: " + _ex.Lineno);
                     Compiler.typeErrors++;
-                    if (_st != null) _st.Check();
                     return false;
                 }
             }
 
-            if (_string != null && (_st == null || _st.Check()))
-            {
-                return true;
-            }
-
-            if (_string == null && (_st == null || _st.Check()))
-            {
-                return true;
-            }
-
-            return false;
+            return true;
         }
     }
 
     public class Read_Statement : Statement
     {
         public Value _ident;
-        public Statement _st;
         public Read_Statement(Value ident)
         {
             _ident = ident;
-            Type = StatementType.ReadStatement;
-        }
-
-        public Read_Statement(Value ident, Statement st)
-        {
-            _ident = ident;
-            _st = st;
             Type = StatementType.ReadStatement;
         }
 
@@ -480,22 +427,16 @@ namespace MiniCompiler
             {
                 Console.WriteLine("Trying to read into uninitialized variable in line: " + _ident.Lineno);
                 Compiler.typeErrors++;
-                if (_st != null) _st.Check();
                 return false;
             }
-            else if (_st == null || _st.Check())
-            {
-                return true;
-            }
 
-            return false;
+            return true;
         }
     }
 
     public class Expression_Statement : Statement
     {
         Expression _ex;
-        Statement _st;
 
         public Expression_Statement(Expression ex)
         {
@@ -503,20 +444,9 @@ namespace MiniCompiler
             Type = StatementType.Expression;
         }
 
-        public Expression_Statement(Expression ex, Statement st)
-        {
-            _ex = ex;
-            _st = st;
-            Type = StatementType.Expression;
-        }
-
         public override void GenCode()
         {
             _ex.GenCode();
-            if(_st!= null)
-            {
-                _st.GenCode();
-            }
         }
 
         public override bool Check()
@@ -524,11 +454,9 @@ namespace MiniCompiler
             var valType = _ex.GetValueType();
             if (valType != TypeOfValue.wrong_val)
             {
-                if (_st != null) _st.Check();
                 return true;
             }
 
-            if (_st != null) _st.Check();
             return false;
         }
     }
