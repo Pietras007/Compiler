@@ -17,7 +17,8 @@ namespace MiniCompiler
         WriteStatement,
         ReadStatement,
         Declaration,
-        Expression
+        Expression,
+        Manystatement
     }
 
     public enum OperationType
@@ -77,6 +78,41 @@ namespace MiniCompiler
         public override bool Check()
         {
             return true;
+        }
+    }
+
+    public class ManyStatements : Statement
+    {
+        public Statement _Lst;
+        public Statement _Pst;
+        public ManyStatements(Statement Lst, Statement Pst)
+        {
+            _Lst = Lst;
+            _Pst = Pst;
+             Type = StatementType.Manystatement;
+        }
+
+        public override void GenCode()
+        {
+            _Lst.GenCode();
+            _Pst.GenCode();
+        }
+
+        public override bool Check()
+        {
+            if(_Lst.Check())
+            {
+                if(_Pst.Check())
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                _Pst.Check();
+            }
+
+            return false;
         }
     }
 

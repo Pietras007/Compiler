@@ -20,7 +20,7 @@
 %token <b_val> BooleanNumber
 %token <i_val> IntNumber
 %token <d_val> DoubleNumber
-%type <stat> prestatement statement
+%type <stat> prestatement manystatements statement
 %type <expression> expression A B C D E F
 %type <value> declarationstring
 %type <opptype> logical relation oppadd oppmul binary unar
@@ -29,30 +29,28 @@
 
 start     : Program CurlyBracketLeft prestatement CurlyBracketRight Eof
 			{ program = $3; Console.WriteLine("Tree finished"); YYACCEPT; }
-          | Program CurlyBracketLeft CurlyBracketRight Eof
-			{ program = new Empty_Statement(); Console.WriteLine("Tree finished"); YYABORT; }
           ;
 
-prestatement : Bool declarationstring Semicolon
-			{ $$ = new Declaration_Statement(TypeOfValue.bool_val, $2); }
-		  | Bool declarationstring Semicolon prestatement
+prestatement : Bool declarationstring Semicolon prestatement
 			{ $$ = new Declaration_Statement(TypeOfValue.bool_val, $2, $4); }
-		  | Int declarationstring Semicolon
-			{ $$ = new Declaration_Statement(TypeOfValue.int_val, $2); }
 		  | Int declarationstring Semicolon prestatement
 			{ $$ = new Declaration_Statement(TypeOfValue.int_val, $2, $4); }
-		  | Double declarationstring Semicolon
-			{ $$ = new Declaration_Statement(TypeOfValue.double_val, $2); }
 		  | Double declarationstring Semicolon prestatement
 			{ $$ = new Declaration_Statement(TypeOfValue.double_val, $2, $4); }
-		  | statement
+		  | manystatements
 			{ $$ = $1; }
 		  ;
 
 declarationstring : Identificator { $$ = new Value($1, Compiler.lines); }
 		  ;
 
-statement : CurlyBracketLeft statement CurlyBracketRight
+manystatements: 
+		    { $$ = new Empty_Statement(); }
+		  | statement manystatements
+			{ $$ = new ManyStatements($1, $2); }
+		  ;
+
+statement : CurlyBracketLeft manystatements CurlyBracketRight
 			{ $$ = $2; }
           | If ParenthesisLeft expression ParenthesisRight statement
 			{ $$ = new If_Statement($3, $5); }
@@ -62,26 +60,14 @@ statement : CurlyBracketLeft statement CurlyBracketRight
 			{ $$ = new While_Statement($3, $5); }
 		  |	Return Semicolon
 			{ $$ = new Return_Statement(); }
-		  |	Return Semicolon statement
-			{ $$ = new Return_Statement(); }
 		  |	expression Semicolon
 			{ $$ = new Expression_Statement($1); }
-		  |	expression Semicolon statement
-			{ $$ = new Expression_Statement($1, $3); }
 		  | Write String Semicolon
 			{ $$ = new Write_Statement($2); }
-		  | Write String Semicolon statement
-			{ $$ = new Write_Statement($2, $4); }
 		  | Write expression Semicolon
 			{ $$ = new Write_Statement($2); }
-		  | Write expression Semicolon statement
-			{ $$ = new Write_Statement($2, $4); }
 		  | Read Identificator Semicolon
 			{ $$ = new Read_Statement(new Value($2, Compiler.lines)); }
-		  | Read Identificator Semicolon statement
-			{ $$ = new Read_Statement(new Value($2, Compiler.lines), $4); }
-		  | CurlyBracketLeft CurlyBracketRight
-			{ $$ = new Empty_Statement(); }
           ;
 
 expression : Identificator Assign A

@@ -1,10 +1,10 @@
 
 // ==========================================================================
-//  GPPG error listing for yacc source file <kompilator.y - 6/27/2020 4:10:20 PM>
+//  GPPG error listing for yacc source file <kompilator.y - 6/28/2020 6:24:26 PM>
 // ==========================================================================
 //  Version:  1.5.2
 //  Machine:  DESKTOP-F60JC3Q
-//  DateTime: 6/27/2020 4:10:58 PM
+//  DateTime: 6/28/2020 6:24:45 PM
 //  UserName: User
 // ==========================================================================
 
@@ -22,6 +22,7 @@
 	public double d_val;
 	public Statement stat; //Statement
 	public Expression expression; //Expression
+	public Value value; //Value
 	public OperationType opptype; //OperationType
 }
 
@@ -30,8 +31,9 @@
 %token <b_val> BooleanNumber
 %token <i_val> IntNumber
 %token <d_val> DoubleNumber
-%type <stat> prestatement statement
-%type <expression> expression A B C D E F declarationstring
+%type <stat> prestatement manystatements statement
+%type <expression> expression A B C D E F
+%type <value> declarationstring
 %type <opptype> logical relation oppadd oppmul binary unar
 
 %%
@@ -39,58 +41,56 @@
 start     : Program CurlyBracketLeft prestatement CurlyBracketRight Eof
 			{ program = $3; Console.WriteLine("Tree finished"); YYACCEPT; }
           | Program CurlyBracketLeft CurlyBracketRight Eof
-			{ program = new Empty_Statement(Compiler.lines); Console.WriteLine("Tree finished"); YYABORT; }
+			{ program = new Empty_Statement(); Console.WriteLine("Tree finished"); YYABORT; }
           ;
 
 prestatement : Bool declarationstring Semicolon
-			{ $$ = new Declaration_Statement(TypeOfValue.bool_val, $2, Compiler.lines); }
+			{ $$ = new Declaration_Statement(TypeOfValue.bool_val, $2); }
 		  | Bool declarationstring Semicolon prestatement
-			{ $$ = new Declaration_Statement(TypeOfValue.bool_val, $2, $4, Compiler.lines); }
+			{ $$ = new Declaration_Statement(TypeOfValue.bool_val, $2, $4); }
 		  | Int declarationstring Semicolon
-			{ $$ = new Declaration_Statement(TypeOfValue.int_val, $2, Compiler.lines); }
+			{ $$ = new Declaration_Statement(TypeOfValue.int_val, $2); }
 		  | Int declarationstring Semicolon prestatement
-			{ $$ = new Declaration_Statement(TypeOfValue.int_val, $2, $4, Compiler.lines); }
+			{ $$ = new Declaration_Statement(TypeOfValue.int_val, $2, $4); }
 		  | Double declarationstring Semicolon
-			{ $$ = new Declaration_Statement(TypeOfValue.double_val, $2, Compiler.lines); }
+			{ $$ = new Declaration_Statement(TypeOfValue.double_val, $2); }
 		  | Double declarationstring Semicolon prestatement
-			{ $$ = new Declaration_Statement(TypeOfValue.double_val, $2, $4, Compiler.lines); }
-		  | statement
+			{ $$ = new Declaration_Statement(TypeOfValue.double_val, $2, $4); }
+		  | manystatements
 			{ $$ = $1; }
 		  ;
 
-declarationstring : Identificator { $$ = new Value($1, 69); }
+declarationstring : Identificator { $$ = new Value($1, Compiler.lines); }
+		  ;
 
-statement : CurlyBracketLeft statement CurlyBracketRight
+manystatements: 
+		    { $$ = new Empty_Statement(); }
+		  | statement manystatements
+			{ $$ = new ManyStatements($1, $2); }
+
+statement : CurlyBracketLeft manystatements CurlyBracketRight
 //^^^^^^^
 // Error: Syntax error, unexpected anchoredSymbol
 // ----------------------------------------------
 			{ $$ = $2; }
           | If ParenthesisLeft expression ParenthesisRight statement
-			{ $$ = new If_Statement($3, $5, Compiler.lines); }
+			{ $$ = new If_Statement($3, $5); }
+		  | If ParenthesisLeft expression ParenthesisRight statement Else statement
+			{ $$ = new If_Statement($3, $5, $7); }
 		  |	While ParenthesisLeft expression ParenthesisRight statement
-			{ $$ = new While_Statement($3, $5, Compiler.lines); }
+			{ $$ = new While_Statement($3, $5); }
 		  |	Return Semicolon
-			{ $$ = new Return_Statement(Compiler.lines); }
-		  |	Return Semicolon statement
-			{ $$ = new Return_Statement(Compiler.lines); }
+			{ $$ = new Return_Statement(); }
 		  |	expression Semicolon
-			{ $$ = new Expression_Statement($1, Compiler.lines); }
-		  |	expression Semicolon statement
-			{ $$ = new Expression_Statement($1, $3, Compiler.lines); }
+			{ $$ = new Expression_Statement($1); }
 		  | Write String Semicolon
-			{ $$ = new Write_Statement($2, Compiler.lines); }
-		  | Write String Semicolon statement
-			{ $$ = new Write_Statement($2, $4, Compiler.lines); }
+			{ $$ = new Write_Statement($2); }
 		  | Write expression Semicolon
-			{ $$ = new Write_Statement($2, Compiler.lines); }
-		  | Write expression Semicolon statement
-			{ $$ = new Write_Statement($2, $4, Compiler.lines); }
+			{ $$ = new Write_Statement($2); }
 		  | Read Identificator Semicolon
-			{ $$ = new Read_Statement(new Value($2, Compiler.lines), Compiler.lines); }
-		  | Read Identificator Semicolon statement
-			{ $$ = new Read_Statement(new Value($2, Compiler.lines), $4, Compiler.lines); }
+			{ $$ = new Read_Statement(new Value($2, Compiler.lines)); }
 		  | CurlyBracketLeft CurlyBracketRight
-			{ $$ = new Empty_Statement(Compiler.lines); }
+			{ $$ = new Empty_Statement(); }
           ;
 
 expression : Identificator Assign A
