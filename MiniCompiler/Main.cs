@@ -494,11 +494,15 @@ namespace MiniCompiler
             }
             else if (_type == OperationType.BooleanLogicalOr)
             {
-                //////////////////////////////
+                _exL.GenCode();
+                _exR.GenCode();
+                Compiler.EmitCode("or");
             }
             else if (_type == OperationType.BooleanLogicalAnd)
             {
-                //////////////////////////////
+                _exL.GenCode();
+                _exR.GenCode();
+                Compiler.EmitCode("and");
             }
             else if (_type == OperationType.Plus)
             {
@@ -721,49 +725,15 @@ namespace MiniCompiler
             }
             else if (_type == OperationType.ConditionalOr)
             {
-                if (_exL.GetValueType() == TypeOfValue.int_val && _exR.GetValueType() == TypeOfValue.double_val)
-                {
-                    _exL.GenCode();
-                    Compiler.EmitCode("conv.r8");
-                    _exR.GenCode();
-                    Compiler.EmitCode("or");
-                }
-                else if (_exL.GetValueType() == TypeOfValue.double_val && _exR.GetValueType() == TypeOfValue.int_val)
-                {
-                    _exL.GenCode();
-                    _exR.GenCode();
-                    Compiler.EmitCode("conv.r8");
-                    Compiler.EmitCode("or");
-                }
-                else
-                {
-                    _exL.GenCode();
-                    _exR.GenCode();
-                    Compiler.EmitCode("or");
-                }
+                _exL.GenCode();
+                _exR.GenCode();
+                Compiler.EmitCode("or");
             }
             else if (_type == OperationType.ConditionalAnd)
             {
-                if (_exL.GetValueType() == TypeOfValue.int_val && _exR.GetValueType() == TypeOfValue.double_val)
-                {
-                    _exL.GenCode();
-                    Compiler.EmitCode("conv.r8");
-                    _exR.GenCode();
-                    Compiler.EmitCode("and");
-                }
-                else if (_exL.GetValueType() == TypeOfValue.double_val && _exR.GetValueType() == TypeOfValue.int_val)
-                {
-                    _exL.GenCode();
-                    _exR.GenCode();
-                    Compiler.EmitCode("conv.r8");
-                    Compiler.EmitCode("and");
-                }
-                else
-                {
-                    _exL.GenCode();
-                    _exR.GenCode();
-                    Compiler.EmitCode("and");
-                }
+                _exL.GenCode();
+                _exR.GenCode();
+                Compiler.EmitCode("and");
             }
         }
 
@@ -775,7 +745,7 @@ namespace MiniCompiler
                 TypeOfValue valR = _exR.GetValueType();
                 if (_exL.Type == TypeOfValue.identificator)
                 {
-                    if (valL == valR || (valL == TypeOfValue.double_val && valR == TypeOfValue.double_val))
+                    if (valL == valR || (valL == TypeOfValue.double_val && valR == TypeOfValue.int_val))
                     {
                         return TypeOfValue.assignment;
                     }
@@ -856,7 +826,36 @@ namespace MiniCompiler
 
         public override void GenCode()
         {
-            Console.WriteLine("");
+            if (_type == OperationType.UnaryMinus)
+            {
+                _exR.GenCode();
+                Compiler.EmitCode("neg");
+            }
+
+            if (_type == OperationType.BitwiseComplement)
+            {
+                _exR.GenCode();
+                Compiler.EmitCode("not");
+            }
+
+            if (_type == OperationType.LogicalNegation)
+            {
+                _exR.GenCode();
+                Compiler.EmitCode("ldc.i4.0");
+                Compiler.EmitCode("ceq");
+            }
+
+            if (_type == OperationType.IntConversion)
+            {
+                _exR.GenCode();
+                Compiler.EmitCode("conv.i4");
+            }
+
+            if (_type == OperationType.DoubleConversion)
+            {
+                _exR.GenCode();
+                Compiler.EmitCode("conv.r8");
+            }
         }
 
         public override TypeOfValue GetValueType()
