@@ -1109,21 +1109,28 @@ namespace MiniCompiler
                 if (x.Check())
                 {
                     Console.WriteLine("Types OK");
+                    x.GenCode();
                 }
-
-                x.GenCode();
             }
 
             GenEpilog();
             sw.Close();
             source.Close();
-            if (errors == 0)
+            if (errors == 0 && typeErrors == 0)
+            {
                 Console.WriteLine("  compilation successful\n");
+            }
+            else if(errors == 0)
+            {
+                Console.WriteLine($"\n  {typeErrors} type errors detected\n");
+                File.Delete(file + ".il");
+            }
             else
             {
                 Console.WriteLine($"\n  {errors} syntax errors detected\n");
                 File.Delete(file + ".il");
             }
+
             return errors == 0 ? 0 : 2;
         }
 
