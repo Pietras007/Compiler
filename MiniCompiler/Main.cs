@@ -103,6 +103,7 @@ namespace MiniCompiler
 
         public override void GenCode()
         {
+            //if(_else_st)
             Console.WriteLine("");
 
         }
@@ -200,7 +201,7 @@ namespace MiniCompiler
         {
             if(_val_name.GetValueType() == TypeOfValue.bool_val)
             {
-                Compiler.EmitCode(".locals init (float64 _" + _val_name._identificator + "_)");
+                Compiler.EmitCode(".locals init (bool _" + _val_name._identificator + "_)");
             }
             else if (_val_name.GetValueType() == TypeOfValue.int_val)
             {
@@ -208,7 +209,7 @@ namespace MiniCompiler
             }
             else if (_val_name.GetValueType() == TypeOfValue.double_val)
             {
-                Compiler.EmitCode(".locals init (bool _" + _val_name._identificator + "_)");
+                Compiler.EmitCode(".locals init (float64 _" + _val_name._identificator + "_)");
             }
 
             if (_st != null)
@@ -324,20 +325,30 @@ namespace MiniCompiler
         {
             if (_ex != null)
             {
-                if (_ex is Value)
+                _ex.GenCode();
+                if (_ex.GetValueType() == TypeOfValue.bool_val)
                 {
-                    var EXP = (Value)_ex;
-                    if (EXP.Type == TypeOfValue.identificator)
-                    {
-                        Compiler.EmitCode("ldloc _" + EXP._identificator + "_");
-                        Compiler.EmitCode("call void [mscorlib]System.Console::WriteLine(int32)");
-                        Compiler.EmitCode("nop");
-                    }
+                    Compiler.EmitCode("call void [mscorlib]System.Console::WriteLine(bool)");
+                    Compiler.EmitCode("nop");
                 }
+                else if (_ex.GetValueType() == TypeOfValue.int_val)
+                {
+                    Compiler.EmitCode("call void [mscorlib]System.Console::WriteLine(int32)");
+                    Compiler.EmitCode("nop");
+                }
+                else if (_ex.GetValueType() == TypeOfValue.double_val)
+                {
+                    Compiler.EmitCode("call void [mscorlib]System.Console::WriteLine(float64)");
+                    Compiler.EmitCode("nop");
+                }
+                if (_st != null) _st.GenCode();
             }
             else
             {
-
+                Compiler.EmitCode(@"ldstr """ + _string + @"""");
+                Compiler.EmitCode("call void [mscorlib]System.Console::WriteLine(string)");
+                Compiler.EmitCode("nop");
+                if (_st != null) _st.GenCode();
             }
         }
 
@@ -477,28 +488,282 @@ namespace MiniCompiler
         {
             if (_type == OperationType.Assign)
             {
-                Compiler.EmitCode("nop");
+                _exR.GenCode();
                 var EXL = (Value)_exL;
-
-                if (_exR is Value)
+                Compiler.EmitCode("stloc _" + EXL._identificator + "_");
+            }
+            else if (_type == OperationType.BooleanLogicalOr)
+            {
+                //////////////////////////////
+            }
+            else if (_type == OperationType.BooleanLogicalAnd)
+            {
+                //////////////////////////////
+            }
+            else if (_type == OperationType.Plus)
+            {
+                if (_exL.GetValueType() == TypeOfValue.int_val && _exR.GetValueType() == TypeOfValue.double_val)
                 {
-                    var EXR = (Value)_exR;
-                    if (EXR.Type == TypeOfValue.identificator)
-                    {
-
-                    }
-                    else
-                    {
-                        if (_exL.GetValueType() == TypeOfValue.bool_val) Compiler.EmitCode("nop");
-                        if (_exL.GetValueType() == TypeOfValue.int_val) Compiler.EmitCode("ldc.i4 " + EXR._val_int);
-                        if (_exL.GetValueType() == TypeOfValue.double_val) Compiler.EmitCode("nop");
-                    }
-
-
+                    _exL.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    _exR.GenCode();
+                    Compiler.EmitCode("add");
+                }
+                else if (_exL.GetValueType() == TypeOfValue.double_val && _exR.GetValueType() == TypeOfValue.int_val)
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    Compiler.EmitCode("add");
+                }
+                else
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("add");
+                }
+            }
+            else if (_type == OperationType.Minus)
+            {
+                if (_exL.GetValueType() == TypeOfValue.int_val && _exR.GetValueType() == TypeOfValue.double_val)
+                {
+                    _exL.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    _exR.GenCode();
+                    Compiler.EmitCode("sub");
+                }
+                else if (_exL.GetValueType() == TypeOfValue.double_val && _exR.GetValueType() == TypeOfValue.int_val)
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    Compiler.EmitCode("sub");
+                }
+                else
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("sub");
+                }
+            }
+            else if (_type == OperationType.Multiplication)
+            {
+                if (_exL.GetValueType() == TypeOfValue.int_val && _exR.GetValueType() == TypeOfValue.double_val)
+                {
+                    _exL.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    _exR.GenCode();
+                    Compiler.EmitCode("mul");
+                }
+                else if (_exL.GetValueType() == TypeOfValue.double_val && _exR.GetValueType() == TypeOfValue.int_val)
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    Compiler.EmitCode("mul");
+                }
+                else
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("mul");
+                }
+            }
+            else if (_type == OperationType.Divide)
+            {
+                if (_exL.GetValueType() == TypeOfValue.int_val && _exR.GetValueType() == TypeOfValue.double_val)
+                {
+                    _exL.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    _exR.GenCode();
+                    Compiler.EmitCode("div");
+                }
+                else if (_exL.GetValueType() == TypeOfValue.double_val && _exR.GetValueType() == TypeOfValue.int_val)
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    Compiler.EmitCode("div");
+                }
+                else
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("div");
+                }
+            }
+            else if (_type == OperationType.Equal || _type == OperationType.Inequal)
+            {
+                if (_exL.GetValueType() == TypeOfValue.int_val && _exR.GetValueType() == TypeOfValue.double_val)
+                {
+                    _exL.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    _exR.GenCode();
+                    Compiler.EmitCode("ceq");
+                }
+                else if (_exL.GetValueType() == TypeOfValue.double_val && _exR.GetValueType() == TypeOfValue.int_val)
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    Compiler.EmitCode("ceq");
+                }
+                else
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("ceq");
                 }
 
+                if (_type == OperationType.Inequal)
+                {
+                    Compiler.EmitCode("ldc.i4.0");
+                    Compiler.EmitCode("ceq");
+                }
 
-                Compiler.EmitCode("stloc _" + EXL._identificator + "_");
+            }
+            else if (_type == OperationType.GreaterThan)
+            {
+                if (_exL.GetValueType() == TypeOfValue.int_val && _exR.GetValueType() == TypeOfValue.double_val)
+                {
+                    _exL.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    _exR.GenCode();
+                    Compiler.EmitCode("cgt");
+                }
+                else if (_exL.GetValueType() == TypeOfValue.double_val && _exR.GetValueType() == TypeOfValue.int_val)
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    Compiler.EmitCode("cgt");
+                }
+                else
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("cgt");
+                }
+            }
+            else if (_type == OperationType.GreaterOrEqual)
+            {
+                if (_exL.GetValueType() == TypeOfValue.int_val && _exR.GetValueType() == TypeOfValue.double_val)
+                {
+                    _exL.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    _exR.GenCode();
+                    Compiler.EmitCode("clt.un");
+                }
+                else if (_exL.GetValueType() == TypeOfValue.double_val && _exR.GetValueType() == TypeOfValue.int_val)
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    Compiler.EmitCode("clt.un");
+                }
+                else
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("clt.un");
+                }
+
+                Compiler.EmitCode("ldc.i4.0");
+                Compiler.EmitCode("ceq");
+            }
+            else if (_type == OperationType.LessThan)
+            {
+                if (_exL.GetValueType() == TypeOfValue.int_val && _exR.GetValueType() == TypeOfValue.double_val)
+                {
+                    _exL.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    _exR.GenCode();
+                    Compiler.EmitCode("clt");
+                }
+                else if (_exL.GetValueType() == TypeOfValue.double_val && _exR.GetValueType() == TypeOfValue.int_val)
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    Compiler.EmitCode("clt");
+                }
+                else
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("clt");
+                }
+            }
+            else if (_type == OperationType.LessOrEqual)
+            {
+                if (_exL.GetValueType() == TypeOfValue.int_val && _exR.GetValueType() == TypeOfValue.double_val)
+                {
+                    _exL.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    _exR.GenCode();
+                    Compiler.EmitCode("cgt.un");
+                }
+                else if (_exL.GetValueType() == TypeOfValue.double_val && _exR.GetValueType() == TypeOfValue.int_val)
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    Compiler.EmitCode("cgt.un");
+                }
+                else
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("cgt.un");
+                }
+                Compiler.EmitCode("ldc.i4.0");
+                Compiler.EmitCode("ceq");
+            }
+            else if (_type == OperationType.ConditionalOr)
+            {
+                if (_exL.GetValueType() == TypeOfValue.int_val && _exR.GetValueType() == TypeOfValue.double_val)
+                {
+                    _exL.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    _exR.GenCode();
+                    Compiler.EmitCode("or");
+                }
+                else if (_exL.GetValueType() == TypeOfValue.double_val && _exR.GetValueType() == TypeOfValue.int_val)
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    Compiler.EmitCode("or");
+                }
+                else
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("or");
+                }
+            }
+            else if (_type == OperationType.ConditionalAnd)
+            {
+                if (_exL.GetValueType() == TypeOfValue.int_val && _exR.GetValueType() == TypeOfValue.double_val)
+                {
+                    _exL.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    _exR.GenCode();
+                    Compiler.EmitCode("and");
+                }
+                else if (_exL.GetValueType() == TypeOfValue.double_val && _exR.GetValueType() == TypeOfValue.int_val)
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("conv.r8");
+                    Compiler.EmitCode("and");
+                }
+                else
+                {
+                    _exL.GenCode();
+                    _exR.GenCode();
+                    Compiler.EmitCode("and");
+                }
             }
         }
 
@@ -684,7 +949,29 @@ namespace MiniCompiler
 
         public override void GenCode()
         {
-            Console.WriteLine("");
+            if(Type == TypeOfValue.identificator)
+            {
+                Compiler.EmitCode("ldloc _" + _identificator + "_");
+            }
+            else if(Type == TypeOfValue.bool_val)
+            {
+                if(_val_bool == false)
+                {
+                    Compiler.EmitCode("ldc.i4.0");
+                }
+                else
+                {
+                    Compiler.EmitCode("ldc.i4.1");
+                }
+            }
+            else if (Type == TypeOfValue.int_val)
+            {
+                Compiler.EmitCode("ldc.i4.s " + _val_int);
+            }
+            else if (Type == TypeOfValue.double_val)
+            {
+                Compiler.EmitCode("ldc.r8 " + _val_double);
+            }
         }
 
         public override TypeOfValue GetValueType()
