@@ -249,7 +249,7 @@ namespace MiniCompiler
             _st = st;
             Type = StatementType.Declaration;
             Compiler.identificators.Add(_val_name._identificator);
-            Compiler.identificatorLines.Add((_val_name._identificator, _val_name.Lineno));
+            Compiler.identificatorLines.Add(new Tuple<string, int>(_val_name._identificator, _val_name.Lineno));
             if (!Compiler.identificatorValueType.ContainsKey(_val_name._identificator))
             {
                 Compiler.identificatorValueType.Add(_val_name._identificator, type);
@@ -1064,7 +1064,7 @@ namespace MiniCompiler
 
         public static Dictionary<string, TypeOfValue> identificatorValueType = new Dictionary<string, TypeOfValue>();
         public static List<string> identificators = new List<string>();
-        public static List<(string, int)> identificatorLines = new List<(string, int)>();
+        public static List<Tuple<string, int>> identificatorLines = new List<Tuple<string, int>>();
         public static List<string> languageKeyWords = new List<string>() { "int", "double", "bool" };
         public static int typeErrors = 0;
 
