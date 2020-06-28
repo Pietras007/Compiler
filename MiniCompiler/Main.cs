@@ -439,7 +439,8 @@ namespace MiniCompiler
             else if (_ident.GetValueType() == TypeOfValue.double_val)
             {
                 Compiler.EmitCode("call string [mscorlib]System.Console::ReadLine()");
-                Compiler.EmitCode("call float64 [mscorlib]System.Double::Parse(string)");
+                Compiler.EmitCode("call class [mscorlib]System.Globalization.CultureInfo [mscorlib]System.Globalization.CultureInfo::get_InvariantCulture()");
+                Compiler.EmitCode("call float64 [mscorlib]System.Double::Parse(string, class [mscorlib] System.IFormatProvider)");
                 _ident.GenCodeToRead();
             }
         }
