@@ -70,7 +70,7 @@ statement : CurlyBracketLeft manystatements CurlyBracketRight
 			{ $$ = new Read_Statement(new Value($2, Compiler.lines)); }
           ;
 
-expression : Identificator Assign A
+expression : Identificator Assign expression
 			{ $$ = new Operand(new Value($1, Compiler.lines), OperationType.Assign, $3, Compiler.lines); }
           | A
 			{ $$ = $1; }

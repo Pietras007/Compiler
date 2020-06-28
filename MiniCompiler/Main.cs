@@ -418,7 +418,24 @@ namespace MiniCompiler
 
         public override void GenCode()
         {
-            Console.WriteLine("");
+            if(_ident.GetValueType() == TypeOfValue.bool_val)
+            {
+                Compiler.EmitCode("call string [mscorlib]System.Console::ReadLine()");
+                Compiler.EmitCode("call bool [mscorlib]System.Boolean::Parse(string)");
+                _ident.GenCodeToRead();
+            }
+            else if(_ident.GetValueType() == TypeOfValue.int_val)
+            {
+                Compiler.EmitCode("call string [mscorlib]System.Console::ReadLine()");
+                Compiler.EmitCode("call int32 [mscorlib]System.Int32::Parse(string)");
+                _ident.GenCodeToRead();
+            }
+            else if (_ident.GetValueType() == TypeOfValue.double_val)
+            {
+                Compiler.EmitCode("call string [mscorlib]System.Console::ReadLine()");
+                Compiler.EmitCode("call float64 [mscorlib]System.Double::Parse(string)");
+                _ident.GenCodeToRead();
+            }
         }
 
         public override bool Check()
@@ -489,6 +506,7 @@ namespace MiniCompiler
             if (_type == OperationType.Assign)
             {
                 _exR.GenCode();
+                Compiler.EmitCode("dup");
                 var EXL = (Value)_exL;
                 Compiler.EmitCode("stloc _" + EXL._identificator + "_");
             }
@@ -767,9 +785,13 @@ namespace MiniCompiler
                 TypeOfValue valR = _exR.GetValueType();
                 if (_exL.Type == TypeOfValue.identificator)
                 {
-                    if (valL == valR || (valL == TypeOfValue.double_val && valR == TypeOfValue.int_val))
+                    if (valL == valR)
                     {
-                        return TypeOfValue.assignment;
+                        return valL;
+                    }
+                    else if(valL == TypeOfValue.double_val && valR == TypeOfValue.int_val)
+                    {
+                        return TypeOfValue.double_val;
                     }
                 }
             }
@@ -966,6 +988,14 @@ namespace MiniCompiler
             _identificator = identificator;
             Type = TypeOfValue.identificator;
             Lineno = lineno;
+        }
+
+        public void GenCodeToRead()
+        {
+            if (Type == TypeOfValue.identificator)
+            {
+                Compiler.EmitCode("stloc _" + _identificator + "_");
+            }
         }
 
         public override void GenCode()
