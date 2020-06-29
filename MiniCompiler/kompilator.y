@@ -170,9 +170,9 @@ unar      : Minus
 			{ $$ = OperationType.BitwiseComplement; }
 		  | LogicalNegation
 			{ $$ = OperationType.LogicalNegation; }
-		  |	IntConversion
+		  |	ParenthesisLeft Int ParenthesisRight
 			{ $$ = OperationType.IntConversion; }
-		  |	DoubleConversion
+		  |	ParenthesisLeft Double ParenthesisRight
 			{ $$ = OperationType.DoubleConversion; }
           ;
 

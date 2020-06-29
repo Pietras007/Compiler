@@ -1158,6 +1158,7 @@ namespace MiniCompiler
             EmitCode(".method static void main()");
             EmitCode("{");
             EmitCode(".entrypoint");
+            EmitCode(".maxstack 256");
             EmitCode(".try");
             EmitCode("{");
             EmitCode();

@@ -6,9 +6,9 @@
 //
 //  GPLEX Version:  1.2.2
 //  Machine:  DESKTOP-F60JC3Q
-//  DateTime: 6/29/2020 10:47:59 AM
+//  DateTime: 6/29/2020 1:24:15 PM
 //  UserName: User
-//  GPLEX input file <kompilator.lex - 6/29/2020 10:47:44 AM>
+//  GPLEX input file <kompilator.lex - 6/29/2020 1:24:11 PM>
 //  GPLEX frame file <embedded resource>
 //
 //  Option settings: verbose, parser, minimize
@@ -125,8 +125,8 @@ namespace MiniCompiler
         
         enum Result {accept, noMatch, contextFound};
 
-        const int maxAccept = 81;
-        const int initial = 82;
+        const int maxAccept = 79;
+        const int initial = 80;
         const int eofNum = 0;
         const int goStart = -1;
         const int INITIAL = 0;
@@ -163,18 +163,17 @@ namespace MiniCompiler
         }
     };
 
-    static int[] startState = new int[] {82, 0};
+    static int[] startState = new int[] {80, 0};
 
-    static Table[] NxS = new Table[95] {
+    static Table[] NxS = new Table[84] {
 /* NxS[   0] */ new Table(0, 0, 0, null), // Shortest string ""
 /* NxS[   1] */ new Table(0, 0, -1, null), // Shortest string "\n"
 /* NxS[   2] */ new Table(0, 0, -1, null), // Shortest string "\x20"
 /* NxS[   3] */ // Shortest string "!"
-      new Table(61, 1, -1, new sbyte[] {81}),
+      new Table(61, 1, -1, new sbyte[] {79}),
 /* NxS[   4] */ // Shortest string "&"
-      new Table(38, 1, -1, new sbyte[] {79}),
-/* NxS[   5] */ // Shortest string "("
-      new Table(100, 6, -1, new sbyte[] {85, -1, -1, -1, -1, 86}),
+      new Table(38, 1, -1, new sbyte[] {77}),
+/* NxS[   5] */ new Table(0, 0, -1, null), // Shortest string "("
 /* NxS[   6] */ new Table(0, 0, -1, null), // Shortest string ")"
 /* NxS[   7] */ new Table(0, 0, -1, null), // Shortest string "*"
 /* NxS[   8] */ new Table(0, 0, -1, null), // Shortest string "+"
@@ -182,9 +181,9 @@ namespace MiniCompiler
 /* NxS[  10] */ // Shortest string "/"
       new Table(47, 1, -1, new sbyte[] {76}),
 /* NxS[  11] */ // Shortest string "0"
-      new Table(46, 1, -1, new sbyte[] {84}),
+      new Table(46, 1, -1, new sbyte[] {82}),
 /* NxS[  12] */ // Shortest string "1"
-      new Table(46, 12, -1, new sbyte[] {84, -1, 12, 12, 12, 12, 
+      new Table(46, 12, -1, new sbyte[] {82, -1, 12, 12, 12, 12, 
           12, 12, 12, 12, 12, 12}),
 /* NxS[  13] */ new Table(0, 0, -1, null), // Shortest string ";"
 /* NxS[  14] */ // Shortest string "<"
@@ -557,50 +556,30 @@ namespace MiniCompiler
           75, 75, 75, 75}),
 /* NxS[  76] */ // Shortest string "//"
       new Table(10, 1, 76, new sbyte[] {-1}),
-/* NxS[  77] */ new Table(0, 0, -1, null), // Shortest string "(int)"
-/* NxS[  78] */ new Table(0, 0, -1, null), // Shortest string "(double)"
-/* NxS[  79] */ new Table(0, 0, -1, null), // Shortest string "&&"
-/* NxS[  80] */ new Table(0, 0, -1, null), // Shortest string "\"\""
-/* NxS[  81] */ new Table(0, 0, -1, null), // Shortest string "!="
-/* NxS[  82] */ // Shortest string ""
+/* NxS[  77] */ new Table(0, 0, -1, null), // Shortest string "&&"
+/* NxS[  78] */ new Table(0, 0, -1, null), // Shortest string "\"\""
+/* NxS[  79] */ new Table(0, 0, -1, null), // Shortest string "!="
+/* NxS[  80] */ // Shortest string ""
       new Table(10, 117, -1, new sbyte[] {1, -1, -1, -1, -1, -1, 
           -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
-          2, 3, 83, -1, -1, -1, 4, -1, 5, 6, 7, 8, -1, 9, -1, 10, 
+          2, 3, 81, -1, -1, -1, 4, -1, 5, 6, 7, 8, -1, 9, -1, 10, 
           11, 12, 12, 12, 12, 12, 12, 12, 12, 12, -1, 13, 14, 15, 16, -1, 
           -1, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 
           17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, -1, -1, -1, -1, -1, 
           -1, 17, 18, 17, 19, 20, 21, 17, 17, 22, 17, 17, 17, 17, 17, 17, 
           23, 17, 24, 17, 25, 17, 17, 26, 17, 17, 17, 27, 28, 29, 30}),
-/* NxS[  83] */ // Shortest string "\""
-      new Table(10, 83, 83, new sbyte[] {-1, 83, 83, 83, 83, 83, 
-          83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 
-          83, 83, 80, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 
-          83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 
-          83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 
-          83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 94}),
-/* NxS[  84] */ // Shortest string "0."
+/* NxS[  81] */ // Shortest string "\""
+      new Table(10, 83, 81, new sbyte[] {-1, 81, 81, 81, 81, 81, 
+          81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 
+          81, 81, 78, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 
+          81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 
+          81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 
+          81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 81, 83}),
+/* NxS[  82] */ // Shortest string "0."
       new Table(48, 10, -1, new sbyte[] {75, 75, 75, 75, 75, 75, 
           75, 75, 75, 75}),
-/* NxS[  85] */ // Shortest string "(d"
-      new Table(111, 1, -1, new sbyte[] {89}),
-/* NxS[  86] */ // Shortest string "(i"
-      new Table(110, 1, -1, new sbyte[] {87}),
-/* NxS[  87] */ // Shortest string "(in"
-      new Table(116, 1, -1, new sbyte[] {88}),
-/* NxS[  88] */ // Shortest string "(int"
-      new Table(41, 1, -1, new sbyte[] {77}),
-/* NxS[  89] */ // Shortest string "(do"
-      new Table(117, 1, -1, new sbyte[] {90}),
-/* NxS[  90] */ // Shortest string "(dou"
-      new Table(98, 1, -1, new sbyte[] {91}),
-/* NxS[  91] */ // Shortest string "(doub"
-      new Table(108, 1, -1, new sbyte[] {92}),
-/* NxS[  92] */ // Shortest string "(doubl"
-      new Table(101, 1, -1, new sbyte[] {93}),
-/* NxS[  93] */ // Shortest string "(double"
-      new Table(41, 1, -1, new sbyte[] {78}),
-/* NxS[  94] */ // Shortest string "\"\\"
-      new Table(10, 1, 83, new sbyte[] {-1}),
+/* NxS[  83] */ // Shortest string "\"\\"
+      new Table(10, 1, 81, new sbyte[] {-1}),
     };
 
 int NextState() {
@@ -1026,7 +1005,7 @@ int NextState() {
     {
         case eofNum:
             switch (currentStart) {
-                case 82:
+                case 80:
 return (int)Tokens.Eof;
                     break;
             }
@@ -1183,19 +1162,13 @@ yylval.d_val=Double.Parse(yytext, System.Globalization.CultureInfo.InvariantCult
         case 76: // Recognized '{Comment}',	Shortest string "//"
 { }
             break;
-        case 77: // Recognized '"(int)"',	Shortest string "(int)"
-return (int)Tokens.IntConversion;
-            break;
-        case 78: // Recognized '"(double)"',	Shortest string "(double)"
-return (int)Tokens.DoubleConversion;
-            break;
-        case 79: // Recognized '"&&"',	Shortest string "&&"
+        case 77: // Recognized '"&&"',	Shortest string "&&"
 return (int)Tokens.ConditionalAnd;
             break;
-        case 80: // Recognized '{String}',	Shortest string "\"\""
+        case 78: // Recognized '{String}',	Shortest string "\"\""
 yylval.val=yytext; return (int)Tokens.String;
             break;
-        case 81: // Recognized '"!="',	Shortest string "!="
+        case 79: // Recognized '"!="',	Shortest string "!="
 return (int)Tokens.Inequal;
             break;
         default:

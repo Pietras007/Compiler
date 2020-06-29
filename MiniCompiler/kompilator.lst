@@ -1,206 +1,80 @@
 
 // ==========================================================================
-//  GPPG error listing for yacc source file <kompilator.y - 6/28/2020 6:24:26 PM>
+//  GPLEX error listing for lex source file <kompilator.lex>
 // ==========================================================================
-//  Version:  1.5.2
+//  Version:  1.2.2
 //  Machine:  DESKTOP-F60JC3Q
-//  DateTime: 6/28/2020 6:24:45 PM
+//  DateTime: 6/29/2020 1:24:02 PM
 //  UserName: User
 // ==========================================================================
 
 
-// Uwaga: W wywoÅaniu generatora gppg naleÅ¼y uÅ¼yÄ opcji /gplex
-
+%using QUT.Gppg;
 %namespace MiniCompiler
 
-%union
-{
-	public string val;
-	public char type;
-	public bool b_val;
-	public int i_val;
-	public double d_val;
-	public Statement stat; //Statement
-	public Expression expression; //Expression
-	public Value value; //Value
-	public OperationType opptype; //OperationType
-}
-
-%token Program If Else While Read Write Return Int Double Bool True False Assign ConditionalOr ConditionalAnd BooleanLogicalOr BooleanLogicalAnd Equal Inequal GreaterThan GreaterOrEqual LessThan LessOrEqual Plus Minus Multiplication Divide LogicalNegation BitwiseComplement ParenthesisLeft ParenthesisRight CurlyBracketLeft CurlyBracketRight Semicolon Eof IntConversion DoubleConversion
-%token <val> Identificator Comment String
-%token <b_val> BooleanNumber
-%token <i_val> IntNumber
-%token <d_val> DoubleNumber
-%type <stat> prestatement manystatements statement
-%type <expression> expression A B C D E F
-%type <value> declarationstring
-%type <opptype> logical relation oppadd oppmul binary unar
-
-%%
-
-start     : Program CurlyBracketLeft prestatement CurlyBracketRight Eof
-			{ program = $3; Console.WriteLine("Tree finished"); YYACCEPT; }
-          | Program CurlyBracketLeft CurlyBracketRight Eof
-			{ program = new Empty_Statement(); Console.WriteLine("Tree finished"); YYABORT; }
-          ;
-
-prestatement : Bool declarationstring Semicolon
-			{ $$ = new Declaration_Statement(TypeOfValue.bool_val, $2); }
-		  | Bool declarationstring Semicolon prestatement
-			{ $$ = new Declaration_Statement(TypeOfValue.bool_val, $2, $4); }
-		  | Int declarationstring Semicolon
-			{ $$ = new Declaration_Statement(TypeOfValue.int_val, $2); }
-		  | Int declarationstring Semicolon prestatement
-			{ $$ = new Declaration_Statement(TypeOfValue.int_val, $2, $4); }
-		  | Double declarationstring Semicolon
-			{ $$ = new Declaration_Statement(TypeOfValue.double_val, $2); }
-		  | Double declarationstring Semicolon prestatement
-			{ $$ = new Declaration_Statement(TypeOfValue.double_val, $2, $4); }
-		  | manystatements
-			{ $$ = $1; }
-		  ;
-
-declarationstring : Identificator { $$ = new Value($1, Compiler.lines); }
-		  ;
-
-manystatements: 
-		    { $$ = new Empty_Statement(); }
-		  | statement manystatements
-			{ $$ = new ManyStatements($1, $2); }
-
-statement : CurlyBracketLeft manystatements CurlyBracketRight
-//^^^^^^^
-// Error: Syntax error, unexpected anchoredSymbol
-// ----------------------------------------------
-			{ $$ = $2; }
-          | If ParenthesisLeft expression ParenthesisRight statement
-			{ $$ = new If_Statement($3, $5); }
-		  | If ParenthesisLeft expression ParenthesisRight statement Else statement
-			{ $$ = new If_Statement($3, $5, $7); }
-		  |	While ParenthesisLeft expression ParenthesisRight statement
-			{ $$ = new While_Statement($3, $5); }
-		  |	Return Semicolon
-			{ $$ = new Return_Statement(); }
-		  |	expression Semicolon
-			{ $$ = new Expression_Statement($1); }
-		  | Write String Semicolon
-			{ $$ = new Write_Statement($2); }
-		  | Write expression Semicolon
-			{ $$ = new Write_Statement($2); }
-		  | Read Identificator Semicolon
-			{ $$ = new Read_Statement(new Value($2, Compiler.lines)); }
-		  | CurlyBracketLeft CurlyBracketRight
-			{ $$ = new Empty_Statement(); }
-          ;
-
-expression : Identificator Assign A
-			{ $$ = new Operand(new Value($1, Compiler.lines), OperationType.Assign, $3, Compiler.lines); }
-          | A
-			{ $$ = $1; }
-          ;
-
-A         : A logical B
-			{ $$ = new Operand($1, $2 ,$3, Compiler.lines); }
-          | B
-			{ $$ = $1; }
-          ;
-		  
-logical   : ConditionalOr
-			{ $$ = OperationType.ConditionalOr; }
-          | ConditionalAnd
-			{ $$ = OperationType.ConditionalAnd; }
-          ;
-
-B		  : B relation C
-			{ $$ = new Operand($1, $2 ,$3, Compiler.lines); }
-          | C
-			{ $$ = $1; }
-          ;
-
-relation  : Equal
-			{ $$ = OperationType.Equal; }
-          | Inequal
-			{ $$ = OperationType.Inequal; }
-		  | GreaterThan
-			{ $$ = OperationType.GreaterThan; }
-		  | GreaterOrEqual 
-			{ $$ = OperationType.GreaterOrEqual; }
-		  | LessThan
-			{ $$ = OperationType.LessThan; }
-		  | LessOrEqual
-			{ $$ = OperationType.LessOrEqual; }
-          ;
-		  
-C		  : C oppadd D
-			{ $$ = new Operand($1, $2 ,$3, Compiler.lines); }
-          | D
-			{ $$ = $1; }
-          ;
-		  
-oppadd    : Plus
-			{ $$ = OperationType.Plus; }
-          | Minus
-			{ $$ = OperationType.Minus; }
-          ;
-		  
-D		  : D oppmul E
-			{ $$ = new Operand($1, $2 ,$3, Compiler.lines); }
-          | E
-			{ $$ = $1; }
-          ;
-		  
-oppmul    : Multiplication
-			{ $$ = OperationType.Multiplication; }
-          | Divide
-			{ $$ = OperationType.Divide; }
-          ;
-		  
-E		  : E binary F
-			{ $$ = new Operand($1, $2 ,$3, Compiler.lines); }
-          | F
-			{ $$ = $1; }
-          ;
-
-binary    : BooleanLogicalOr
-			{ $$ = OperationType.BooleanLogicalOr; }
-          | BooleanLogicalAnd
-			{ $$ = OperationType.BooleanLogicalAnd; }
-          ;
-		  
-F		  : unar F
-			{ $$ = new UnaryOperand($1, $2, Compiler.lines); }
-		  | IntNumber
-			{ $$ = new Value($1, Compiler.lines); }
-		  |	DoubleNumber
-			{ $$ = new Value($1, Compiler.lines); }
-		  | BooleanNumber
-			{ $$ = new Value($1, Compiler.lines); }
-          | Identificator
-			{ $$ = new Value($1, Compiler.lines);}
-		  | ParenthesisLeft expression ParenthesisRight
-			{ $$ = $2; }
-		  | error Semicolon
-		    { yyerrok(); Console.WriteLine("error syntax, line: " + Compiler.lines.ToString()); Compiler.errors++;  }
-		  | error Eof
-		    { yyerrok(); Console.WriteLine("something missing, line: " + Compiler.lines.ToString()); Compiler.errors++; YYABORT; }
-          ;
-		  
-unar      : Minus
-			{ $$ = OperationType.UnaryMinus; }
-          | BitwiseComplement
-			{ $$ = OperationType.BitwiseComplement; }
-		  | LogicalNegation
-			{ $$ = OperationType.LogicalNegation; }
-		  |	IntConversion
-			{ $$ = OperationType.IntConversion; }
-		  |	DoubleConversion
-			{ $$ = OperationType.DoubleConversion; }
-          ;
+BooleanNumber	"true"|"false"
+IntNumber   	0|([1-9][0-9]*)
+DoubleNumber 	(0|([1-9][0-9]*))\.[0-9]+
+Identificator   [A-Za-z]+[A-Za-z0-9]*
+String			\"([^\\\"\n]|\\.)*\"
+Comment			"//".*
 
 
 %%
 
-public static Statement program;
-
-public Parser(Scanner scanner) : base(scanner) { }// ==========================================================================
+"program"       { return (int)Tokens.Program; }
+"if"        	{ return (int)Tokens.If; }
+"else"   		{ return (int)Tokens.Else; }
+"while"  		{ return (int)Tokens.While; }
+"read"       	{ return (int)Tokens.Read; }
+"write"         { return (int)Tokens.Write; }
+"return"        { return (int)Tokens.Return; }
+"int"			{ return (int)Tokens.Int; }
+//^^^
+// Warning: This pattern always overrides ""int"" 
+// -----------------------------------------------
+"double"        { return (int)Tokens.Double; }
+//^^^^^^
+// Warning: This pattern always overrides ""double"" 
+// --------------------------------------------------
+"bool"          { return (int)Tokens.Bool; }
+"="           	{ return (int)Tokens.Assign; }
+"||"       		{ return (int)Tokens.ConditionalOr; }
+"&&"      		{ return (int)Tokens.ConditionalAnd; }
+"|"          	{ return (int)Tokens.BooleanLogicalOr; }
+"&"          	{ return (int)Tokens.BooleanLogicalAnd; }
+"=="    		{ return (int)Tokens.Equal; }
+"!="            { return (int)Tokens.Inequal; }
+">"				{ return (int)Tokens.GreaterThan; }
+">="        	{ return (int)Tokens.GreaterOrEqual; }
+"<"          	{ return (int)Tokens.LessThan; }
+"<="          	{ return (int)Tokens.LessOrEqual; }
+"+"         	{ return (int)Tokens.Plus; }
+"-"           	{ return (int)Tokens.Minus; }
+"*"       		{ return (int)Tokens.Multiplication; }
+"/"       		{ return (int)Tokens.Divide; }
+"!"       		{ return (int)Tokens.LogicalNegation; }
+"~"       		{ return (int)Tokens.BitwiseComplement; }
+"("       		{ return (int)Tokens.ParenthesisLeft; }
+")"       		{ return (int)Tokens.ParenthesisRight; }
+"{"       		{ return (int)Tokens.CurlyBracketLeft; }
+"}"       		{ return (int)Tokens.CurlyBracketRight; }
+";"       		{ return (int)Tokens.Semicolon; }
+"int"       	{ return (int)Tokens.IntConversion; }
+//^^^
+// Warning: This pattern always overridden by ""int"" 
+// ---------------------------------------------------
+"double"  		{ return (int)Tokens.DoubleConversion; }
+//^^^^^^
+// Warning: This pattern always overridden by ""double"" 
+// ------------------------------------------------------
+" "       		{ }
+<<EOF>>       	{ return (int)Tokens.Eof; }
+{IntNumber}		{ yylval.i_val=Int32.Parse(yytext); return (int)Tokens.IntNumber; }
+{DoubleNumber}	{ yylval.d_val=Double.Parse(yytext, System.Globalization.CultureInfo.InvariantCulture); return (int)Tokens.DoubleNumber; }
+{BooleanNumber}	{ yylval.b_val=Boolean.Parse(yytext); return (int)Tokens.BooleanNumber; }
+{Identificator}	{ yylval.val=yytext; return (int)Tokens.Identificator; }
+{String}		{ yylval.val=yytext; return (int)Tokens.String; }
+{Comment}		{ }
+"\n"			{ Compiler.lines++; }// ==========================================================================
 

@@ -43,8 +43,6 @@ Comment			"//".*
 "{"       		{ return (int)Tokens.CurlyBracketLeft; }
 "}"       		{ return (int)Tokens.CurlyBracketRight; }
 ";"       		{ return (int)Tokens.Semicolon; }
-"(int)"       	{ return (int)Tokens.IntConversion; }
-"(double)"  	{ return (int)Tokens.DoubleConversion; }
 " "       		{ }
 <<EOF>>       	{ return (int)Tokens.Eof; }
 {IntNumber}		{ yylval.i_val=Int32.Parse(yytext); return (int)Tokens.IntNumber; }
