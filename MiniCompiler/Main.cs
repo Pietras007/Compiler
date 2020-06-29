@@ -471,6 +471,7 @@ namespace MiniCompiler
         public override void GenCode()
         {
             _ex.GenCode();
+            Compiler.EmitCode("pop");
         }
 
         public override bool Check()
