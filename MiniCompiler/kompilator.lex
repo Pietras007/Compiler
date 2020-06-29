@@ -3,7 +3,7 @@
 
 BooleanNumber	"true"|"false"
 IntNumber   	0|([1-9][0-9]*)
-DoubleNumber 	0|([1-9][0-9]*)\.[0-9]+
+DoubleNumber 	(0|([1-9][0-9]*))\.[0-9]+
 Identificator   [A-Za-z]+[A-Za-z0-9]*
 String			\"([^\\\"\n]|\\.)*\"
 Comment			"//".*

@@ -4,7 +4,7 @@
 
 // GPPG version 1.5.2
 // Machine:  DESKTOP-F60JC3Q
-// DateTime: 6/29/2020 10:07:22 AM
+// DateTime: 6/29/2020 10:47:59 AM
 // UserName: User
 // Input file <kompilator.y - 6/29/2020 10:07:10 AM>
 

@@ -6,9 +6,9 @@
 //
 //  GPLEX Version:  1.2.2
 //  Machine:  DESKTOP-F60JC3Q
-//  DateTime: 6/29/2020 10:07:22 AM
+//  DateTime: 6/29/2020 10:47:59 AM
 //  UserName: User
-//  GPLEX input file <kompilator.lex - 6/28/2020 11:37:37 PM>
+//  GPLEX input file <kompilator.lex - 6/29/2020 10:47:44 AM>
 //  GPLEX frame file <embedded resource>
 //
 //  Option settings: verbose, parser, minimize
@@ -181,7 +181,8 @@ namespace MiniCompiler
 /* NxS[   9] */ new Table(0, 0, -1, null), // Shortest string "-"
 /* NxS[  10] */ // Shortest string "/"
       new Table(47, 1, -1, new sbyte[] {76}),
-/* NxS[  11] */ new Table(0, 0, -1, null), // Shortest string "0"
+/* NxS[  11] */ // Shortest string "0"
+      new Table(46, 1, -1, new sbyte[] {84}),
 /* NxS[  12] */ // Shortest string "1"
       new Table(46, 12, -1, new sbyte[] {84, -1, 12, 12, 12, 12, 
           12, 12, 12, 12, 12, 12}),
@@ -551,7 +552,7 @@ namespace MiniCompiler
 /* NxS[  72] */ new Table(0, 0, -1, null), // Shortest string ">="
 /* NxS[  73] */ new Table(0, 0, -1, null), // Shortest string "=="
 /* NxS[  74] */ new Table(0, 0, -1, null), // Shortest string "<="
-/* NxS[  75] */ // Shortest string "1.0"
+/* NxS[  75] */ // Shortest string "0.0"
       new Table(48, 10, -1, new sbyte[] {75, 75, 75, 75, 75, 75, 
           75, 75, 75, 75}),
 /* NxS[  76] */ // Shortest string "//"
@@ -577,7 +578,7 @@ namespace MiniCompiler
           83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 
           83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 
           83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 83, 94}),
-/* NxS[  84] */ // Shortest string "1."
+/* NxS[  84] */ // Shortest string "0."
       new Table(48, 10, -1, new sbyte[] {75, 75, 75, 75, 75, 75, 
           75, 75, 75, 75}),
 /* NxS[  85] */ // Shortest string "(d"
@@ -1176,7 +1177,7 @@ return (int)Tokens.Equal;
         case 74: // Recognized '"<="',	Shortest string "<="
 return (int)Tokens.LessOrEqual;
             break;
-        case 75: // Recognized '{DoubleNumber}',	Shortest string "1.0"
+        case 75: // Recognized '{DoubleNumber}',	Shortest string "0.0"
 yylval.d_val=Double.Parse(yytext, System.Globalization.CultureInfo.InvariantCulture); return (int)Tokens.DoubleNumber;
             break;
         case 76: // Recognized '{Comment}',	Shortest string "//"

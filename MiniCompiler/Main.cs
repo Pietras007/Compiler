@@ -144,7 +144,7 @@ namespace MiniCompiler
                 _ex.GenCode();
                 string label = "E" + Compiler.Enumber;
                 Compiler.Enumber++;
-                Compiler.EmitCode("brfalse.s " + label);
+                Compiler.EmitCode("brfalse " + label);
                 Compiler.EmitCode("nop");
                 _st.GenCode();
                 Compiler.EmitCode("nop");
@@ -158,11 +158,11 @@ namespace MiniCompiler
                 string label = "E" + Compiler.Enumber;
                 Compiler.Enumber++;
 
-                Compiler.EmitCode("brfalse.s " + labelelse);
+                Compiler.EmitCode("brfalse " + labelelse);
                 Compiler.EmitCode("nop");
                 _st.GenCode();
                 Compiler.EmitCode("nop");
-                Compiler.EmitCode("br.s " + label);
+                Compiler.EmitCode("br " + label);
                 Compiler.EmitCode(labelelse + ": nop");
                 _else_st.GenCode();
                 Compiler.EmitCode("nop");
@@ -208,13 +208,13 @@ namespace MiniCompiler
             Compiler.Enumber++;
             string whilecheck = "E" + Compiler.Enumber;
             Compiler.Enumber++;
-            Compiler.EmitCode("br.s  " + whilecheck.ToString());
+            Compiler.EmitCode("br  " + whilecheck.ToString());
             Compiler.EmitCode(whilestart.ToString() +": nop");
             _st.GenCode();
             Compiler.EmitCode("nop");
             Compiler.EmitCode(whilecheck.ToString() + ": nop");
             _ex.GenCode();
-            Compiler.EmitCode("brtrue.s " + whilestart.ToString());
+            Compiler.EmitCode("brtrue " + whilestart.ToString());
         }
 
         public override bool Check()
@@ -334,7 +334,7 @@ namespace MiniCompiler
 
         public override void GenCode()
         {
-            Compiler.EmitCode("br.s Efromreturn");
+            Compiler.EmitCode("br Efromreturn");
         }
 
         public override bool Check()
@@ -514,6 +514,11 @@ namespace MiniCompiler
             if (_type == OperationType.Assign)
             {
                 _exR.GenCode();
+                if(_exL.GetValueType() == TypeOfValue.double_val && _exR.GetValueType() == TypeOfValue.int_val)
+                {
+                    Compiler.EmitCode("conv.r8");
+                }
+
                 Compiler.EmitCode("dup");
                 var EXL = (Value)_exL;
                 Compiler.EmitCode("stloc _" + EXL._identificator + "_");
@@ -756,13 +761,13 @@ namespace MiniCompiler
                 Compiler.EmitCode("and");
                 string orOk = "E" + Compiler.Enumber;
                 Compiler.Enumber++;
-                Compiler.EmitCode("brtrue.s " + orOk);
+                Compiler.EmitCode("brtrue " + orOk);
                 Compiler.EmitCode("ldc.i4.0");
                 _exR.GenCode();
                 Compiler.EmitCode("or");
                 string orAll = "E" + Compiler.Enumber;
                 Compiler.Enumber++;
-                Compiler.EmitCode("br.s " + orAll);
+                Compiler.EmitCode("br " + orAll);
                 Compiler.EmitCode(orOk + ": ldc.i4.1");
                 Compiler.EmitCode(orAll + ": nop");
             }
@@ -773,13 +778,13 @@ namespace MiniCompiler
                 Compiler.EmitCode("and");
                 string endwrong = "E" + Compiler.Enumber;
                 Compiler.Enumber++;
-                Compiler.EmitCode("brfalse.s " + endwrong);
+                Compiler.EmitCode("brfalse " + endwrong);
                 Compiler.EmitCode("ldc.i4.1");
                 _exR.GenCode();
                 Compiler.EmitCode("and");
                 string andAll = "E" + Compiler.Enumber;
                 Compiler.Enumber++;
-                Compiler.EmitCode("br.s " + andAll);
+                Compiler.EmitCode("br " + andAll);
                 Compiler.EmitCode(endwrong + ": ldc.i4.0");
                 Compiler.EmitCode(andAll + ": nop");
             }
