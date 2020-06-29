@@ -368,13 +368,13 @@ namespace MiniCompiler
                 if (_ex.GetValueType() == TypeOfValue.bool_val)
                 {
                     _ex.GenCode();
-                    Compiler.EmitCode("call void [mscorlib]System.Console::WriteLine(bool)");
+                    Compiler.EmitCode("call void [mscorlib]System.Console::Write(bool)");
                     Compiler.EmitCode("nop");
                 }
                 else if (_ex.GetValueType() == TypeOfValue.int_val)
                 {
                     _ex.GenCode();
-                    Compiler.EmitCode("call void [mscorlib]System.Console::WriteLine(int32)");
+                    Compiler.EmitCode("call void [mscorlib]System.Console::Write(int32)");
                     Compiler.EmitCode("nop");
                 }
                 else if (_ex.GetValueType() == TypeOfValue.double_val)
@@ -1131,6 +1131,7 @@ namespace MiniCompiler
                 Console.WriteLine($"\n  {errors} syntax errors detected\n");
                 File.Delete(file + ".il");
             }
+            errors += typeErrors;
 
             return errors == 0 ? 0 : 2;
         }
