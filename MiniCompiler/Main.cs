@@ -687,20 +687,20 @@ namespace MiniCompiler
                     _exL.GenCode();
                     Compiler.EmitCode("conv.r8");
                     _exR.GenCode();
-                    Compiler.EmitCode("clt.un");
+                    Compiler.EmitCode("clt");
                 }
                 else if (_exL.GetValueType() == TypeOfValue.double_val && _exR.GetValueType() == TypeOfValue.int_val)
                 {
                     _exL.GenCode();
                     _exR.GenCode();
                     Compiler.EmitCode("conv.r8");
-                    Compiler.EmitCode("clt.un");
+                    Compiler.EmitCode("clt");
                 }
                 else
                 {
                     _exL.GenCode();
                     _exR.GenCode();
-                    Compiler.EmitCode("clt.un");
+                    Compiler.EmitCode("clt");
                 }
 
                 Compiler.EmitCode("ldc.i4.0");
@@ -736,20 +736,20 @@ namespace MiniCompiler
                     _exL.GenCode();
                     Compiler.EmitCode("conv.r8");
                     _exR.GenCode();
-                    Compiler.EmitCode("cgt.un");
+                    Compiler.EmitCode("cgt");
                 }
                 else if (_exL.GetValueType() == TypeOfValue.double_val && _exR.GetValueType() == TypeOfValue.int_val)
                 {
                     _exL.GenCode();
                     _exR.GenCode();
                     Compiler.EmitCode("conv.r8");
-                    Compiler.EmitCode("cgt.un");
+                    Compiler.EmitCode("cgt");
                 }
                 else
                 {
                     _exL.GenCode();
                     _exR.GenCode();
-                    Compiler.EmitCode("cgt.un");
+                    Compiler.EmitCode("cgt");
                 }
                 Compiler.EmitCode("ldc.i4.0");
                 Compiler.EmitCode("ceq");
