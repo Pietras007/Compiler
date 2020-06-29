@@ -260,15 +260,15 @@ namespace MiniCompiler
         {
             if(_val_name.GetValueType() == TypeOfValue.bool_val)
             {
-                Compiler.EmitCode(".locals init (bool _" + _val_name._identificator + "_)");
+                Compiler.EmitCode(".locals init (bool _" + _val_name._identificator + "X_)");
             }
             else if (_val_name.GetValueType() == TypeOfValue.int_val)
             {
-                Compiler.EmitCode(".locals init (int32 _" + _val_name._identificator + "_)");
+                Compiler.EmitCode(".locals init (int32 _" + _val_name._identificator + "X_)");
             }
             else if (_val_name.GetValueType() == TypeOfValue.double_val)
             {
-                Compiler.EmitCode(".locals init (float64 _" + _val_name._identificator + "_)");
+                Compiler.EmitCode(".locals init (float64 _" + _val_name._identificator + "X_)");
             }
 
             if (_st != null)
@@ -521,7 +521,7 @@ namespace MiniCompiler
 
                 Compiler.EmitCode("dup");
                 var EXL = (Value)_exL;
-                Compiler.EmitCode("stloc _" + EXL._identificator + "_");
+                Compiler.EmitCode("stloc _" + EXL._identificator + "X_");
             }
             else if (_type == OperationType.BooleanLogicalOr)
             {
@@ -1007,7 +1007,7 @@ namespace MiniCompiler
         {
             if (Type == TypeOfValue.identificator)
             {
-                Compiler.EmitCode("stloc _" + _identificator + "_");
+                Compiler.EmitCode("stloc _" + _identificator + "X_");
             }
         }
 
@@ -1015,7 +1015,7 @@ namespace MiniCompiler
         {
             if(Type == TypeOfValue.identificator)
             {
-                Compiler.EmitCode("ldloc _" + _identificator + "_");
+                Compiler.EmitCode("ldloc _" + _identificator + "X_");
             }
             else if(Type == TypeOfValue.bool_val)
             {
@@ -1030,7 +1030,7 @@ namespace MiniCompiler
             }
             else if (Type == TypeOfValue.int_val)
             {
-                Compiler.EmitCode("ldc.i4.s " + _val_int);
+                Compiler.EmitCode("ldc.i4 " + _val_int);
             }
             else if (Type == TypeOfValue.double_val)
             {
@@ -1110,7 +1110,7 @@ namespace MiniCompiler
             parser.Parse();
 
             var x = Parser.program;
-            if (x != null)
+            if (x != null && errors == 0)
             {
                 if (x.Check())
                 {
