@@ -29,6 +29,8 @@
 
 start     : Program CurlyBracketLeft prestatement CurlyBracketRight Eof
 			{ program = $3; Console.WriteLine("Tree finished"); YYACCEPT; }
+           | error Eof
+		    { yyerrok(); Console.WriteLine("something missing, line: " + Compiler.lines.ToString()); Compiler.errors++; YYABORT; }
           ;
 
 prestatement : Bool declarationstring Semicolon prestatement

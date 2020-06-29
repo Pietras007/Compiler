@@ -391,7 +391,7 @@ namespace MiniCompiler
             else
             {
                 Compiler.EmitCode("ldstr " + _string);
-                Compiler.EmitCode("call void [mscorlib]System.Console::WriteLine(string)");
+                Compiler.EmitCode("call void [mscorlib]System.Console::Write(string)");
                 Compiler.EmitCode("nop");
             }
         }
