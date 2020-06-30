@@ -304,7 +304,7 @@ namespace MiniCompiler
                 {
                     for(int i= sortedlist.Length - 2; i>=0;i--)
                     {
-                        Console.WriteLine("Such declaration already exists. Error in line: " + sortedlist[i].Item2);
+                        Console.WriteLine("variable already declared error in line: " + sortedlist[i].Item2);
                     }
                 }
                 
@@ -1049,7 +1049,7 @@ namespace MiniCompiler
                 }
                 else
                 {
-                    Console.WriteLine("Using uninitialized variable in line: " + Lineno);
+                    Console.WriteLine("undeclared variable in line: " + Lineno);
                     Compiler.typeErrors++;
                     return TypeOfValue.wrong_val;
                 }
