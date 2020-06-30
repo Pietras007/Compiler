@@ -1081,7 +1081,6 @@ namespace MiniCompiler
         {
             string file;
             FileStream source;
-            Console.WriteLine("\nSingle-Pass CIL Code Generator for Multiline Calculator - Gardens Point");
             if (args.Length >= 1)
                 file = args[0];
             else
