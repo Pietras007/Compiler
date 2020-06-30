@@ -4,7 +4,7 @@
 BooleanNumber	"true"|"false"
 IntNumber   	0|([1-9][0-9]*)
 DoubleNumber 	(0|([1-9][0-9]*))\.[0-9]+
-Identificator   [A-Za-z]+[A-Za-z0-9]*
+Identificator   [a-zA-Z]+[a-zA-Z0-9]*
 String			\"([^\\\"\n]|\\.)*\"
 Comment			"//".*
 
@@ -52,3 +52,4 @@ Comment			"//".*
 {String}		{ yylval.val=yytext; return (int)Tokens.String; }
 {Comment}		{ }
 "\n"			{ Compiler.lines++; }
+.				{ return (int)Tokens.Error; }
