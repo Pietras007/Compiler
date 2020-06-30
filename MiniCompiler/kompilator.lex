@@ -44,6 +44,8 @@ Comment			"//".*
 "}"       		{ return (int)Tokens.CurlyBracketRight; }
 ";"       		{ return (int)Tokens.Semicolon; }
 " "       		{ }
+"\t"       		{ }
+"\r"       		{ }
 <<EOF>>       	{ return (int)Tokens.Eof; }
 {IntNumber}		{ yylval.i_val=Int32.Parse(yytext); return (int)Tokens.IntNumber; }
 {DoubleNumber}	{ yylval.d_val=Double.Parse(yytext, System.Globalization.CultureInfo.InvariantCulture); return (int)Tokens.DoubleNumber; }
